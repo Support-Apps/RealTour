@@ -231,6 +231,73 @@
             border-color: var(--accent-gold) !important;
         }
 
+        .action-menu-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 12px;
+            border: 1px solid #E5E2DA;
+            background: #FBFAF7;
+        }
+        .action-menu-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .action-menu-title {
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-main);
+            font-weight: bold;
+        }
+        .action-menu-toggle {
+            background: #FFFFFF;
+            color: var(--accent-gold);
+            border: 1px solid var(--accent-gold);
+            padding: 8px 12px;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .action-menu-toggle:hover {
+            background: var(--accent-gold);
+            color: #FFFFFF;
+        }
+        .action-menu-list {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .action-menu-panel.open .action-menu-list {
+            display: flex;
+        }
+        .action-menu-list > button,
+        .action-menu-list > .share-wrap {
+            width: 100%;
+            margin: 0 !important;
+        }
+        .action-menu-list .uniform-action-btn,
+        .action-menu-list .btn-action,
+        .action-menu-list .btn-secondary {
+            width: 100%;
+            margin: 0 !important;
+        }
+        .action-menu-list .share-wrap {
+            margin: 0 !important;
+        }
+        .action-menu-list #shareMenu {
+            margin-top: 8px;
+        }
+
         .preview-area {
             flex: 1;
             background-color: #D6D6D4;
@@ -893,17 +960,47 @@
         }
         #flipbookOverlay.active { display: flex; }
         #flipbookBar {
-            display: flex; align-items: center; justify-content: space-between;
-            gap: 12px; padding: 10px 18px;
-            background: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px 18px;
+            background: rgba(255,255,255,0.96);
             border-bottom: 1px solid #E5E2DA;
             flex-shrink: 0;
+            backdrop-filter: blur(10px);
+        }
+        #flipbookBar .fb-bar-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
         }
         #flipbookBar .fb-title {
             font-family: 'Cinzel', serif; color: #3A3A38;
             font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
         }
-        #flipbookBar .fb-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        #flipbookBar .fb-actions {
+            display: none;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        #flipbookBar.open .fb-actions { display: flex; }
+        #flipbookBar .fb-menu-btn {
+            background: #FFFFFF;
+            color: #3A3A38;
+            border: 1px solid #C5A880;
+            padding: 9px 14px;
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        #flipbookBar .fb-menu-btn:hover { background: var(--accent-gold); color: #3A3A38; }
         .fb-btn {
             background: #FFFFFF; color: #3A3A38;
             border: 1px solid #C5A880;
@@ -914,6 +1011,15 @@
         .fb-btn:hover { background: var(--accent-gold); color: #3A3A38; }
         .fb-btn.primary { background: #FFFFFF; color: #3A3A38; }
         .fb-btn.close { border-color: #B8B4A8; color: #3A3A38; }
+        @media (max-width: 760px) {
+            #flipbookBar { padding: 10px 12px; }
+            #flipbookBar .fb-bar-top { align-items: flex-start; }
+            #flipbookBar .fb-title { font-size: 11px; letter-spacing: 2px; }
+            #flipbookBar.open .fb-actions { justify-content: stretch; }
+            #flipbookBar .fb-actions { width: 100%; }
+            #flipbookBar .fb-actions .fb-btn,
+            #flipbookBar .fb-menu-btn { width: 100%; text-align: center; }
+        }
         #flipbookFrame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #FFFFFF; }
         #flipbookLoader {
             position: absolute; inset: 0; display: none;
@@ -936,6 +1042,88 @@
             color: #6b6862; font-family: Arial, sans-serif;
             font-size: 11px; letter-spacing: 1px;
         }
+
+
+        /* Elegant sidebar refresh */
+        .sidebar{
+            background: radial-gradient(circle at top left, rgba(197,168,128,0.16), transparent 28%), linear-gradient(180deg, #FFFEFC 0%, #F7F2EA 100%);
+            border-right: 1px solid rgba(197,168,128,0.28);
+            box-shadow: 0 20px 48px rgba(40,33,24,0.12);
+            padding: 32px 26px 40px;
+            gap: 18px;
+            scrollbar-gutter: stable;
+        }
+        .sidebar::-webkit-scrollbar{ width: 10px; }
+        .sidebar::-webkit-scrollbar-track{ background: rgba(197,168,128,0.08); }
+        .sidebar::-webkit-scrollbar-thumb{ background: rgba(197,168,128,0.42); border-radius: 999px; border: 2px solid rgba(255,255,255,0.6); }
+        .logo-branding{ font-size: 18px; letter-spacing: 5px; padding-bottom: 18px; margin-bottom: 6px; color: #2B2926; border-bottom: 1px solid rgba(43,41,38,0.14); }
+        .section-divider{ font-size: 10px; letter-spacing: 2.4px; color: #9F7F54; border-bottom: 1px solid rgba(197,168,128,0.18); padding-bottom: 8px; margin-top: 20px; }
+        .page-editor-block, .accordion-block, .action-menu-panel, .color-control-group{ background: rgba(255,255,255,0.84); border: 1px solid rgba(197,168,128,0.22); border-radius: 18px; box-shadow: 0 12px 26px rgba(58,52,43,0.06); }
+        .page-editor-block{ padding: 18px; }
+        .accordion-block{ overflow: hidden; margin-top: 10px; }
+        .accordion-header{ padding: 14px 16px; letter-spacing: 1.2px; background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,242,234,0.72)); }
+        .accordion-header:hover{ background: linear-gradient(180deg, rgba(255,255,255,1), rgba(243,235,223,0.9)); }
+        .accordion-body{ padding: 4px 16px 16px; }
+        .input-group{ gap: 8px; }
+        label, .toggle-row .toggle-label, .color-control-label{ font-size: 10px; letter-spacing: 1.6px; color: #6E655B; }
+        input, select, textarea{ border: 1px solid rgba(197,168,128,0.20); background: rgba(255,255,255,0.94); border-radius: 14px; padding: 12px 13px; color: #262320; box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 1px 2px rgba(44,37,28,0.04); transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease, background .22s ease; }
+        input:hover, select:hover, textarea:hover{ border-color: rgba(197,168,128,0.44); }
+        input:focus, select:focus, textarea:focus{ border-color: rgba(197,168,128,0.85); box-shadow: 0 0 0 4px rgba(197,168,128,0.12), inset 0 1px 0 rgba(255,255,255,0.9); background: #fff; }
+        textarea{ min-height: 72px; }
+        input[type="range"]{ height: 8px; border-radius: 999px; background: linear-gradient(90deg, rgba(197,168,128,0.55), rgba(229,229,226,1)); }
+        input[type="range"]::-webkit-slider-thumb{ width: 18px; height: 18px; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(58,52,43,0.15); }
+        .custom-file-upload, body .color-toggle-btn, .view-toggle-bar button, #undoBtn, #redoBtn, .action-menu-toggle, .btn-secondary, .btn-action{ border-radius: 14px !important; min-height: 44px; }
+        .custom-file-upload{ background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(246,241,233,0.95)); border: 1px dashed rgba(197,168,128,0.6); color: #54483C; font-size: 10px; letter-spacing: 1.6px; padding: 12px 14px; }
+        .custom-file-upload:hover{ background: #fff; border-color: var(--accent-gold); transform: translateY(-1px); }
+        #undoBtn, #redoBtn{ background: linear-gradient(180deg, #FFFFFF 0%, #F4EFE6 100%) !important; border: 1px solid rgba(197,168,128,0.34) !important; color: #3A342E !important; box-shadow: 0 8px 18px rgba(58,52,46,0.08); }
+        #undoBtn:not(:disabled):hover, #redoBtn:not(:disabled):hover{ background: linear-gradient(180deg, #CDB089 0%, #B99767 100%) !important; color: #fff !important; border-color: transparent !important; }
+        #undoBtn:disabled, #redoBtn:disabled{ box-shadow: none; opacity: .55; }
+        .btn-secondary, .uniform-action-btn, .action-menu-toggle, .view-toggle-bar button{ background: linear-gradient(180deg, #FFFFFF 0%, #F6F1E9 100%) !important; color: #5A4D3F !important; border: 1px solid rgba(197,168,128,0.34) !important; box-shadow: 0 8px 18px rgba(58,52,46,0.07); }
+        .btn-secondary:hover, .uniform-action-btn:hover, .action-menu-toggle:hover, .view-toggle-bar button:hover{ background: linear-gradient(180deg, #F7E3C1 0%, #E0C195 100%) !important; color: #2F2924 !important; border-color: rgba(197,168,128,0.82) !important; transform: translateY(-1px); }
+        .btn-action{ background: linear-gradient(180deg, #2F2B27 0%, #161411 100%) !important; color: #fff !important; border: 1px solid rgba(0,0,0,0.08) !important; box-shadow: 0 14px 28px rgba(28,24,21,0.16); }
+        .btn-action:hover{ background: linear-gradient(180deg, #C6A97F 0%, #AF8959 100%) !important; color: #fff !important; transform: translateY(-1px); }
+        #btnDownload, #btnFlipbook{
+            background: linear-gradient(180deg, #FFFFFF 0%, #F6F1E9 100%) !important;
+            color: #5A4D3F !important;
+            border: 1px solid rgba(197,168,128,0.34) !important;
+            box-shadow: 0 8px 18px rgba(58,52,46,0.07) !important;
+        }
+        #btnDownload:hover, #btnFlipbook:hover{
+            background: linear-gradient(180deg, #F7E3C1 0%, #E0C195 100%) !important;
+            color: #2F2924 !important;
+            border-color: rgba(197,168,128,0.82) !important;
+        }
+        .view-toggle-bar{ gap: 10px; }
+        .view-toggle-bar button.active{
+            background: linear-gradient(180deg, #F7E3C1 0%, #E0C195 100%) !important;
+            color: #2F2924 !important;
+            border-color: rgba(197,168,128,0.82) !important;
+            box-shadow: 0 10px 22px rgba(197,168,128,0.18) !important;
+        }
+        body .color-toggle-btn.active{ background: linear-gradient(180deg, #2C2926 0%, #1D1B18 100%) !important; color: #fff !important; border-color: #2C2926 !important; box-shadow: 0 10px 22px rgba(32,28,24,0.18); }
+        #btnApplySignature{
+            background: linear-gradient(180deg, #FFFFFF 0%, #F6F1E9 100%) !important;
+            color: #5A4D3F !important;
+            border: 1px solid rgba(197,168,128,0.34) !important;
+            box-shadow: 0 8px 18px rgba(58,52,46,0.07) !important;
+        }
+        #btnApplySignature:hover{
+            background: linear-gradient(180deg, #F7E3C1 0%, #E0C195 100%) !important;
+            color: #2F2924 !important;
+            border-color: rgba(197,168,128,0.82) !important;
+        }
+        body .color-toggle-buttons{ gap: 10px; margin-top: 8px; }
+        body .color-toggle-btn{ padding: 11px 12px !important; font-size: 10px !important; letter-spacing: 1.5px !important; }
+        .action-menu-panel{ gap: 14px; padding: 14px; margin-top: 14px; background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(247,242,234,0.82)); }
+        .action-menu-title{ letter-spacing: 2.6px; color: #433A32; }
+        .action-menu-list{ gap: 10px; }
+        .autosave-note{ display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px; background: rgba(197,168,128,0.12); border: 1px solid rgba(197,168,128,0.18); color: #9F7F54; font-size: 8px; letter-spacing: 1.4px; margin-top: -2px; }
+        .toggle-slider{ background: rgba(197,168,128,0.24); box-shadow: inset 0 1px 2px rgba(58,52,43,0.10); }
+        .toggle-slider:before{ box-shadow: 0 2px 6px rgba(58,52,43,0.16); }
+        .toggle-switch input:checked + .toggle-slider{ background: linear-gradient(90deg, #D2B286, #B8905E); }
+        #sidebarToggle{ border-radius: 16px; background: rgba(255,255,255,0.94); border: 1px solid rgba(197,168,128,0.42); box-shadow: 0 14px 28px rgba(40,33,24,0.18); transition: transform .2s ease, background .2s ease; }
+        #sidebarToggle:hover{ background: #fff; transform: translateY(-1px); }
+        @media (max-width: 900px){ .sidebar{ box-shadow: 0 20px 44px rgba(32,28,24,0.24); } }
 
     </style>
 </head>
@@ -1155,7 +1343,7 @@
             </div>
             <div class="input-row">
                 <button class="btn-secondary" type="button" onclick="clearSignature()" style="flex:1; padding:8px;">✕ <span id="lblClearSig">Clear</span></button>
-                <button class="btn-action" type="button" onclick="applySignatureToMag()" style="flex:1; padding:8px; margin-top:0;">✓ <span id="lblApplySig">Apply</span></button>
+                <button class="btn-action" id="btnApplySignature" type="button" onclick="applySignatureToMag()" style="flex:1; padding:8px; margin-top:0;">✓ <span id="lblApplySig">Apply</span></button>
             </div>
             <div class="input-group">
                 <label id="lblSigSize">Signature Size</label>
@@ -1168,22 +1356,26 @@
 
         </div>
 
-        <button class="btn-secondary uniform-action-btn" type="button" id="btnAddCustomPage" onclick="createNewPageData()">+ Add New Magazine Page</button>
-        <button class="btn-secondary uniform-action-btn" type="button" id="btnResetAll" onclick="resetAll()">↺ Reset All &amp; Start Over</button>
-
-        <button class="btn-secondary uniform-action-btn" type="button" id="btnPresentation" onclick="enterPresentationMode()" style="width:100%;">🎬 <span id="lblBtnPresentation">Presentation Mode</span></button>
-
-        <div class="share-wrap" style="width:100%;">
-            <button class="btn-secondary uniform-action-btn" id="btnShareToggle" onclick="toggleShareMenu(event)" style="width:100%;">📤 <span id="lblBtnShare">Share</span></button>
-            <div id="shareMenu" style="display:none;">
-                <button onclick="shareViaEmail()">📧 <span id="lblShareEmail">Email</span></button>
-                <button onclick="shareViaWhatsApp()">💬 <span id="lblShareWhatsApp">WhatsApp</span></button>
+        <div class="action-menu-panel" id="actionMenuPanel">
+            <div class="action-menu-header">
+                <div class="action-menu-title">Quick Actions</div>
+                <button class="action-menu-toggle" type="button" id="actionMenuToggle" onclick="toggleActionMenu()">☰ Menu</button>
+            </div>
+            <div class="action-menu-list">
+                <button class="btn-secondary uniform-action-btn" type="button" id="btnAddCustomPage" onclick="createNewPageData()">+ Add New Magazine Page</button>
+                <button class="btn-secondary uniform-action-btn" type="button" id="btnResetAll" onclick="resetAll()">↺ Reset All &amp; Start Over</button>
+                <button class="btn-secondary uniform-action-btn" type="button" id="btnPresentation" onclick="enterPresentationMode()">🎬 <span id="lblBtnPresentation">Presentation Mode</span></button>
+                <div class="share-wrap" style="width:100%;">
+                    <button class="btn-secondary uniform-action-btn" id="btnShareToggle" onclick="toggleShareMenu(event)" style="width:100%;">📤 <span id="lblBtnShare">Share</span></button>
+                    <div id="shareMenu" style="display:none;">
+                        <button onclick="shareViaEmail()">📧 <span id="lblShareEmail">Email</span></button>
+                        <button onclick="shareViaWhatsApp()">💬 <span id="lblShareWhatsApp">WhatsApp</span></button>
+                    </div>
+                </div>
+                <button class="btn-action uniform-action-btn" id="btnDownload" onclick="openPreviewModal()">👁 <span id="lblBtnPreview">Preview &amp; Download</span></button>
+                <button class="btn-action uniform-action-btn" id="btnFlipbook" onclick="openFlipbook()">📖 <span id="lblBtnFlipbook">Create Flipbook</span></button>
             </div>
         </div>
-
-        <button class="btn-action uniform-action-btn" id="btnDownload" onclick="openPreviewModal()">👁 <span id="lblBtnPreview">Preview &amp; Download</span></button>
-
-        <button class="btn-action uniform-action-btn" id="btnFlipbook" onclick="openFlipbook()">📖 <span id="lblBtnFlipbook">Create Flipbook</span></button>
     </div>
 
     <div class="preview-area" id="magazineContainer">
@@ -3125,6 +3317,12 @@
         // ============================================================
         // SHARE
         // ============================================================
+        function toggleActionMenu() {
+            const panel = document.getElementById('actionMenuPanel');
+            if (!panel) return;
+            panel.classList.toggle('open');
+        }
+
         function toggleShareMenu(e) {
             e.stopPropagation();
             const menu = document.getElementById('shareMenu');
@@ -3344,7 +3542,7 @@
                 <div class="pages-grid" id="previewPagesGrid"></div>
             </div>
             <div class="modal-footer">
-                <button class="btn-action" onclick="closePreviewModal()" id="btnModalBack" style="padding:12px 32px; background:#555; border:none;">← <span id="lblModalBack">Back to Edit</span></button>
+                <button class="btn-action uniform-action-btn" onclick="closePreviewModal()" id="btnModalBack" style="padding:12px 32px;">← <span id="lblModalBack">Back to Edit</span></button>
                 <button class="btn-action uniform-action-btn" onclick="startDownload()"    id="btnModalDownload" style="padding:12px 32px;">⬇ <span id="lblModalDownload">Download PDF</span></button>
                 <button class="btn-action uniform-action-btn" onclick="closePreviewModal(); openFlipbook();" id="btnModalFlipbook" style="padding:12px 32px;">📖 <span id="lblModalFlipbook">View Flipbook</span></button>
             </div>
@@ -3354,7 +3552,10 @@
     <!-- ── Flipbook Overlay ──────────────────────────────── -->
     <div id="flipbookOverlay">
         <div id="flipbookBar">
-            <span class="fb-title" id="fbTitle">Interactive Flipbook</span>
+            <div class="fb-bar-top">
+                <span class="fb-title" id="fbTitle">Interactive Flipbook</span>
+                <button class="fb-menu-btn" id="fbMenuToggleMain" type="button" onclick="toggleFlipbookBar()">☰ <span>Menu</span></button>
+            </div>
             <div class="fb-actions">
                 <button class="fb-btn" id="fbBtnRefresh" onclick="openFlipbook()" title="Refresh with new pages">🔄 <span>Refresh</span></button>
                 <button class="fb-btn" id="fbBtnPresent" onclick="flipbookPresent()">⛶ <span>Present</span></button>
@@ -3475,20 +3676,20 @@ baseStyles,
 'body{background:#FFFFFF;font-family:Arial,sans-serif;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#3A3A38;}',
 '/* Hide editor-only UI in flipbook */',
 '.add-second-image-btn{display:none !important;}',
-'.fb-toolbar{position:fixed;top:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;z-index:20;max-width:calc(100vw - 28px);padding:0 6px;transition:opacity .25s ease, transform .25s ease;}',
-'.fb-tool-btn,.fb-counter,.fb-menu-toggle{background:#FFFFFF;border:1px solid #C5A880;color:#3A3A38;font-family:"Cinzel",serif;letter-spacing:1.6px;text-transform:uppercase;font-size:10px;line-height:1;padding:10px 14px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.08);backdrop-filter:blur(4px);}',
-'.fb-tool-btn,.fb-menu-toggle{cursor:pointer;transition:.2s;min-width:46px;}',
+'.fb-menu-toggle{display:block;position:fixed;top:14px;right:14px;z-index:26;min-width:auto;padding:10px 12px;}',
+'.fb-toolbar{position:fixed;top:60px;right:14px;left:auto;transform:none;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:7px;z-index:20;width:min(132px, calc(100vw - 28px));padding:12px 10px;border:1px solid rgba(197,168,128,.72);border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 12px 30px rgba(0,0,0,.12);backdrop-filter:blur(10px);transition:opacity .25s ease, transform .25s ease;}',
+'.fb-tool-btn,.fb-counter,.fb-menu-toggle{background:#FFFFFF;border:1px solid #C5A880;color:#3A3A38;font-family:"Cinzel",serif;letter-spacing:1.2px;text-transform:uppercase;font-size:9px;line-height:1;padding:9px 11px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.08);backdrop-filter:blur(4px);}',
+'.fb-tool-btn,.fb-menu-toggle{cursor:pointer;transition:.2s;min-width:0;}',
 '.fb-tool-btn:hover,.fb-menu-toggle:hover{background:#C5A880;}',
 '.fb-tool-btn:disabled{opacity:.35;cursor:default;background:#FFFFFF;}',
-'.fb-counter{min-width:92px;text-align:center;direction:ltr;}',
+'.fb-counter{min-width:0;text-align:center;direction:ltr;}',
 '.stage{--book-h:min(86vh, calc(100vh - 170px));flex:1;width:100%;display:flex;align-items:center;justify-content:center;perspective:2600px;padding:88px 16px 52px;overflow:auto;overflow-x:auto;overflow-y:auto;}',
 '.zoom-wrap{transform-origin:center center;transition:transform .25s ease;will-change:transform;display:flex;align-items:center;justify-content:center;width:max-content;min-width:100%;min-height:100%;padding:0 12px;}',
 '.book{position:relative;height:var(--book-h);width:calc(var(--book-h) * 1.414);max-width:min(98vw, calc(100vw - 32px));margin:0 auto;transition:width .6s ease, transform .82s cubic-bezier(.22,.61,.36,1);transform-style:preserve-3d;}',
 '.book.single{width:calc(var(--book-h) * 0.707);}',
-'.fb-menu-toggle{display:none;position:fixed;top:12px;right:12px;z-index:26;min-width:auto;padding:10px 12px;}',
-'body.fb-ui-hidden .fb-toolbar{opacity:0;pointer-events:none;transform:translateX(-50%) translateY(-10px);}',
-'body.fb-ui-hidden .fb-menu-toggle{opacity:.55;}',
-'@media (max-width:760px){body.fb-ui-hidden .fb-toolbar{transform:translateY(-8px);}body.fb-ui-hidden .fb-menu-toggle{opacity:.75;}.fb-menu-toggle{display:block;}.fb-toolbar{top:58px;left:auto;right:12px;transform:none;flex-direction:column;align-items:stretch;gap:7px;max-width:none;padding:12px 10px;border:1px solid rgba(197,168,128,.7);border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 12px 30px rgba(0,0,0,.12);backdrop-filter:blur(10px);}.fb-toolbar.mobile-collapsed{opacity:0;pointer-events:none;transform:translateY(-8px);}.fb-tool-btn,.fb-counter{font-size:8px;padding:8px 10px;letter-spacing:1px;min-width:0;width:100%;}.fb-counter{text-align:center;min-width:0;}.stage{--book-h:min(82vh, calc(100vh - 84px));padding:18px 10px 18px;}}',
+'body.fb-ui-hidden .fb-toolbar,.fb-toolbar.mobile-collapsed{opacity:0;pointer-events:none;transform:translateY(-8px);}',
+'body.fb-ui-hidden .fb-menu-toggle{opacity:.65;}',
+'@media (max-width:760px){body.fb-ui-hidden .fb-menu-toggle{opacity:.75;}.fb-menu-toggle{top:12px;right:12px;padding:10px 12px;}.fb-toolbar{top:56px;right:12px;width:min(126px, calc(100vw - 24px));padding:11px 9px;}.fb-tool-btn,.fb-counter{font-size:8px;padding:8px 10px;letter-spacing:1px;}.stage{--book-h:min(82vh, calc(100vh - 84px));padding:18px 10px 18px;}}',
 '.leaf{position:absolute;top:0;height:100%;width:50%;overflow:hidden;background:#fff;box-shadow:0 14px 36px rgba(0,0,0,.18);backface-visibility:hidden;-webkit-backface-visibility:hidden;}',
 '.page-shell{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fff;overflow:hidden;}',
 '.page-fit{width:595px;height:842px;transform:scale(1);transform-origin:center center;visibility:hidden;}',
@@ -3627,13 +3828,11 @@ baseStyles,
 '    var tgtL = RTL?tgt.r:tgt.l, tgtR = RTL?tgt.l:tgt.r;',
 '    // make sure we are in spread layout for the animation',
 '    book.classList.remove("single");',
-'    set(leafL, (cur.cover || cur.single) ? null : curL);',
-'    set(leafR, curR);',
-'    var frontIdx = turnRight ? curR : curL;',
-'    var backIdx  = turnRight ? tgtL : tgtR;',
+'    set(leafL, tgtL);',
+'    set(leafR, tgtR);',
+'    var frontIdx = turnRight ? tgtL : tgtR;',
+'    var backIdx  = frontIdx;',
 '    set(fFront, frontIdx); set(fBack, backIdx);',
-'    // reveal the destination page beneath the turning side',
-'    if(turnRight){ set(leafR, tgtR); } else { set(leafL, tgtL); }',
 '    setTimeout(fitAll, 0);',
 '    // position flipper',
 '    flipper.classList.remove("turn-left","turn-right");',
@@ -3679,61 +3878,65 @@ baseStyles,
 '  var mobileMq = window.matchMedia("(max-width:760px)");',
 '  var stageEl = document.querySelector(".stage");',
 '  var uiHideTimer = null;',
+'  function openToolbar(){',
+'    if(!toolbar || !menuToggle) return;',
+'    toolbar.classList.remove("mobile-collapsed");',
+'    menuToggle.setAttribute("aria-expanded", "true");',
+'  }',
+'  function closeToolbar(){',
+'    if(!toolbar || !menuToggle) return;',
+'    toolbar.classList.add("mobile-collapsed");',
+'    menuToggle.setAttribute("aria-expanded", "false");',
+'  }',
 '  function setUiHidden(hidden){',
 '    document.body.classList.toggle("fb-ui-hidden", !!hidden);',
-'    if(!toolbar || !menuToggle) return;',
-'    if(hidden && mobileMq.matches){',
-'      toolbar.classList.add("mobile-collapsed");',
-'      menuToggle.setAttribute("aria-expanded", "false");',
-'      return;',
-'    }',
-'    if(!mobileMq.matches){',
-'      toolbar.classList.remove("mobile-collapsed");',
-'      menuToggle.setAttribute("aria-expanded", hidden ? "false" : "true");',
-'    }',
+'    if(hidden) closeToolbar();',
 '  }',
 '  function scheduleUiHide(){',
 '    clearTimeout(uiHideTimer);',
-'    if(zoom > 1.001){ uiHideTimer = setTimeout(function(){ setUiHidden(true); }, 1800); }',
+'    uiHideTimer = setTimeout(function(){',
+'      if(zoom > 1.001){ setUiHidden(true); }',
+'      else { closeToolbar(); }',
+'    }, 1200);',
 '  }',
 '  function revealUi(forceOpen){',
 '    clearTimeout(uiHideTimer);',
 '    setUiHidden(false);',
-'    if(mobileMq.matches && forceOpen && toolbar){',
-'      toolbar.classList.remove("mobile-collapsed");',
-'      menuToggle.setAttribute("aria-expanded", "true");',
-'    }',
+'    if(forceOpen) openToolbar();',
 '  }',
 '  function syncToolbarMode(){',
 '    if(!toolbar || !menuToggle) return;',
-'    var mobile = mobileMq.matches;',
-'    menuToggle.style.display = mobile ? "block" : "none";',
-'    if(!mobile){',
-'      toolbar.classList.remove("mobile-collapsed");',
-'      menuToggle.setAttribute("aria-expanded", document.body.classList.contains("fb-ui-hidden") ? "false" : "true");',
-'      return;',
-'    }',
-'    if(document.body.classList.contains("fb-ui-hidden") || zoom <= 1.001){',
-'      toolbar.classList.add("mobile-collapsed");',
-'      menuToggle.setAttribute("aria-expanded", "false");',
-'    }',
+'    menuToggle.style.display = "block";',
+'    if(document.body.classList.contains("fb-ui-hidden")) closeToolbar();',
 '  }',
 '  function toggleToolbar(){',
-'    if(!toolbar || !menuToggle || !mobileMq.matches) return;',
-'    if(document.body.classList.contains("fb-ui-hidden")){',
-'      revealUi(true);',
-'      scheduleUiHide();',
-'      return;',
+'    if(!toolbar || !menuToggle) return;',
+'    if(document.body.classList.contains("fb-ui-hidden")) setUiHidden(false);',
+'    if(toolbar.classList.contains("mobile-collapsed")){',
+'      openToolbar();',
+'      if(zoom > 1.001) scheduleUiHide();',
+'    } else {',
+'      clearTimeout(uiHideTimer);',
+'      closeToolbar();',
 '    }',
-'    var open = toolbar.classList.toggle("mobile-collapsed");',
-'    menuToggle.setAttribute("aria-expanded", open ? "false" : "true");',
-'    if(!open){ scheduleUiHide(); }',
 '  }',
 '  if(menuToggle){ menuToggle.addEventListener("click", toggleToolbar); }',
+'  if(menuToggle){',
+'    menuToggle.addEventListener("mouseenter", function(){ if(mobileMq.matches) return; revealUi(true); });',
+'    menuToggle.addEventListener("mouseleave", function(){ if(mobileMq.matches) return; scheduleUiHide(); });',
+'  }',
+'  if(toolbar){',
+'    toolbar.addEventListener("mouseenter", function(){ if(mobileMq.matches) return; clearTimeout(uiHideTimer); });',
+'    toolbar.addEventListener("mouseleave", function(){ if(mobileMq.matches) return; scheduleUiHide(); });',
+'  }',
 '  if(stageEl){ stageEl.addEventListener("pointerdown", function(e){',
 '    if((menuToggle && e.target === menuToggle) || (toolbar && toolbar.contains(e.target))) return;',
 '    if(zoom > 1.001){ revealUi(mobileMq.matches); scheduleUiHide(); }',
 '  }); }',
+'  if(stageEl){',
+'    stageEl.addEventListener("mouseenter", function(){ if(!mobileMq.matches && zoom > 1.001){ revealUi(true); scheduleUiHide(); } });',
+'    stageEl.addEventListener("mousemove", function(){ if(!mobileMq.matches && zoom > 1.001){ revealUi(true); scheduleUiHide(); } });',
+'  }',
 '  try{ mobileMq.addEventListener("change", syncToolbarMode); }catch(e){ window.addEventListener("resize", syncToolbarMode); }',
 '  syncToolbarMode();',
 '  var CAN_CSS_ZOOM = false;',
@@ -3788,12 +3991,14 @@ baseStyles,
             // Always invalidate cache so we capture the current state of all pages
             lastFlipbookHTML = '';
             const overlay = document.getElementById('flipbookOverlay');
+            const bar = document.getElementById('flipbookBar');
             const loader = document.getElementById('flipbookLoader');
             const frame = document.getElementById('flipbookFrame');
             // Clear any previously rendered flipbook so we don't see stale pages briefly.
             if (lastBlobUrl) { URL.revokeObjectURL(lastBlobUrl); lastBlobUrl = null; }
             frame.removeAttribute('srcdoc');
             frame.src = 'about:blank';
+            if (bar) bar.classList.remove('open');
             overlay.classList.add('active');
             loader.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -3819,12 +4024,20 @@ baseStyles,
         };
 
         window.closeFlipbook = function () {
-            document.getElementById('flipbookOverlay').classList.remove('active');
+            const overlay = document.getElementById('flipbookOverlay');
+            const bar = document.getElementById('flipbookBar');
+            overlay.classList.remove('active');
+            if (bar) bar.classList.remove('open');
             const frame = document.getElementById('flipbookFrame');
             frame.removeAttribute('srcdoc');
             frame.src = 'about:blank';
             document.body.style.overflow = '';
             if (lastBlobUrl) { URL.revokeObjectURL(lastBlobUrl); lastBlobUrl = null; }
+        };
+        window.toggleFlipbookBar = function () {
+            const bar = document.getElementById('flipbookBar');
+            if (!bar) return;
+            bar.classList.toggle('open');
         };
 
         window.addEventListener('message', function(ev){
