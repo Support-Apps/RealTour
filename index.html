@@ -797,11 +797,13 @@
 
         /* ── Mobile View ──────────────────────────────────── */
         /* Goal: keep the exact desktop page layout, and scale the whole page to fit. */
-        .preview-area.mobile-view { background-color: #B8B8B6; padding: 18px; }
+        .preview-area.mobile-view { background-color: #B8B8B6; padding: 18px 10px 20px; }
         .preview-area.mobile-view { gap: 24px; }
         .page-scale-wrap {
             margin: 0 auto;
             display: block;
+            max-width: 100%;
+            overflow: visible;
         }
         .preview-area.mobile-view .magazine-page {
             transform-origin: top left;
@@ -2176,7 +2178,7 @@
                             <img id="outImgA_${pageIndex}" src="">
                         </div>
                         <p class="editorial-text txt-box-a" id="outTextA_${pageIndex}">${defaultTextA}</p>
-                        <button type="button" class="add-second-image-btn" id="addSecondBtn_${pageIndex}" onclick="event.stopPropagation(); addSecondImage(${pageIndex})">+ Add another image</button>
+                        <button type="button" class="add-second-image-btn" id="addSecondBtn_${pageIndex}" onclick="event.stopPropagation(); addSecondImage(${pageIndex})" title="Add another image" aria-label="Add another image">+</button>
                     </div>
                     <div class="grid-col box-b-wrapper">
                         <div class="img-container img-box-b empty" id="imgContainerB_${pageIndex}" onclick="clickImagePlaceholder(${pageIndex}, 'B')">
@@ -2868,7 +2870,6 @@
                 container.classList.add('mobile-view');
                 btnM.classList.add('active');
                 btnD.classList.remove('active');
-                if (wrapper) wrapper.style.height = '200px';
                 _applyMobileScale();
             } else {
                 container.classList.remove('mobile-view');
@@ -2882,6 +2883,8 @@
         // Keep the page exactly like desktop (A4-ish 595x842) and scale it down to fit the preview width.
         const _MOBILE_PAGE_W = 595;
         const _MOBILE_PAGE_H = 842;
+        const _MOBILE_SIDE_GUTTER = 28;
+        const _MOBILE_SCALE_TWEAK = 0.965;
 
         function _clearMobileScale() {
             const container = document.getElementById('magazineContainer');
@@ -2909,16 +2912,17 @@
             if (pages.length === 0) return;
 
             // Fit by width only: keep the exact page proportions, never reflow.
-            const availableW = Math.max(200, container.clientWidth - 36);
-            const s = Math.min(1, availableW / _MOBILE_PAGE_W);
+            const availableW = Math.max(180, container.clientWidth - (_MOBILE_SIDE_GUTTER * 2));
+            const s = Math.min(1, (availableW / _MOBILE_PAGE_W) * _MOBILE_SCALE_TWEAK);
 
             pages.forEach(page => {
                 const wrap = document.createElement('div');
                 wrap.className = 'page-scale-wrap';
                 wrap.style.width = (_MOBILE_PAGE_W * s) + 'px';
                 wrap.style.height = (_MOBILE_PAGE_H * s) + 'px';
-                wrap.style.marginBottom = '24px';
+                wrap.style.marginBottom = '20px';
                 wrap.style.position = 'relative';
+                wrap.style.paddingInline = '4px';
 
                 page.parentNode.insertBefore(wrap, page);
                 wrap.appendChild(page);
@@ -3480,10 +3484,10 @@ baseStyles,
 '.fb-counter{min-width:92px;text-align:center;direction:ltr;}',
 '.stage{--book-h:min(86vh, calc(100vh - 170px));flex:1;width:100%;display:flex;align-items:center;justify-content:center;perspective:2600px;padding:88px 16px 52px;overflow:auto;}',
 '.zoom-wrap{transform-origin:center center;transition:transform .25s ease;will-change:transform;}',
-'.book{position:relative;height:var(--book-h);width:calc(var(--book-h) * 1.414);max-width:98vw;transition:width .55s ease, transform .75s cubic-bezier(.4,.05,.2,1);transform-style:preserve-3d;}',
+'.book{position:relative;height:var(--book-h);width:calc(var(--book-h) * 1.414);max-width:98vw;transition:width .6s ease, transform .82s cubic-bezier(.22,.61,.36,1);transform-style:preserve-3d;}',
 '.book.single{width:calc(var(--book-h) * 0.707);}',
 '@media (max-width:760px){.fb-toolbar{top:10px;gap:6px;}.fb-tool-btn,.fb-counter{font-size:9px;padding:9px 11px;letter-spacing:1.2px;}.stage{--book-h:min(75vh, calc(100vh - 160px));padding:84px 10px 44px;}}',
-'.leaf{position:absolute;top:0;height:100%;width:50%;overflow:hidden;background:#fff;box-shadow:0 14px 36px rgba(0,0,0,.18);}',
+'.leaf{position:absolute;top:0;height:100%;width:50%;overflow:hidden;background:#fff;box-shadow:0 14px 36px rgba(0,0,0,.18);backface-visibility:hidden;-webkit-backface-visibility:hidden;}',
 '.page-shell{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fff;overflow:hidden;}',
 '.page-fit{width:595px;height:842px;transform:scale(1);transform-origin:center center;visibility:hidden;}',
 '.page-fit .magazine-page{width:595px !important;height:842px !important;min-width:595px !important;min-height:842px !important;box-shadow:none !important;margin:0 !important;transform:none !important;}',
@@ -3492,14 +3496,14 @@ baseStyles,
 '.leaf.right{left:50%;border-left:1px solid rgba(0,0,0,.10);box-shadow:inset 16px 0 32px -22px rgba(0,0,0,.25), 0 14px 36px rgba(0,0,0,.18);}',
 '.book.single .leaf.left{display:none;}',
 '.book.single .leaf.right{left:0;width:100%;}',
-'.flipper{position:absolute;top:0;width:50%;height:100%;transform-style:preserve-3d;transition:transform .85s cubic-bezier(.4,.05,.2,1);z-index:30;display:none;}',
+'.flipper{position:absolute;top:0;width:50%;height:100%;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.22,.61,.36,1);z-index:30;display:none;will-change:transform;}',
 '.flipper.on{display:block;}',
-'.flipper .face{position:absolute;inset:0;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#fff;}',
-'.flipper .front{z-index:2;box-shadow:0 14px 36px rgba(0,0,0,.22);}',
+'.flipper .face{position:absolute;inset:0;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#fff;transform-style:preserve-3d;}',
+'.flipper .front{z-index:2;box-shadow:0 18px 44px rgba(0,0,0,.18);}',
 '.flipper .back{transform:rotateY(180deg);}',
-'.flipper .back .page-shell{transform:scaleX(-1);opacity:.55;filter:brightness(.95) contrast(.95);}',
-'.flipper .back::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg, rgba(0,0,0,.18), rgba(255,255,255,.06));}',
-'.shade{position:absolute;top:0;height:100%;width:50%;pointer-events:none;z-index:25;opacity:0;transition:opacity .85s ease;background:linear-gradient(90deg, rgba(0,0,0,.22), rgba(0,0,0,0));}',
+'.flipper .back .page-shell{transform:scaleX(-1);opacity:1;filter:none;background:#FBFAF7;}',
+'.flipper .back::after,.flipper .front::after{content:"";position:absolute;inset:0;pointer-events:none;transition:opacity .35s ease;background:transparent;}.flipper.turn-right{filter:drop-shadow(-16px 0 18px rgba(0,0,0,.16));}.flipper.turn-left{filter:drop-shadow(16px 0 18px rgba(0,0,0,.16));}.flipper.turn-right .front::after{background:linear-gradient(90deg, rgba(0,0,0,.24) 0%, rgba(255,255,255,.10) 22%, rgba(255,255,255,0) 52%);}.flipper.turn-right .back::after{background:linear-gradient(90deg, rgba(0,0,0,.05), rgba(0,0,0,.16));}.flipper.turn-left .front::after{background:linear-gradient(270deg, rgba(0,0,0,.24) 0%, rgba(255,255,255,.10) 22%, rgba(255,255,255,0) 52%);}.flipper.turn-left .back::after{background:linear-gradient(270deg, rgba(0,0,0,.05), rgba(0,0,0,.16));}',
+'.shade{position:absolute;top:0;height:100%;width:50%;pointer-events:none;z-index:25;opacity:0;transition:opacity 1s ease;background:linear-gradient(90deg, rgba(0,0,0,.22), rgba(0,0,0,0));}',
 '.hint{position:fixed;bottom:18px;left:0;right:0;text-align:center;color:#8a877f;font-size:11px;letter-spacing:1px;z-index:6;pointer-events:none;}',
 '.edge{position:absolute;top:0;height:100%;width:34%;z-index:20;cursor:pointer;}',
 '.edge.prev{left:0;}.edge.next{right:0;}',
@@ -3629,12 +3633,15 @@ baseStyles,
 '    if(turnRight){ set(leafR, tgtR); } else { set(leafL, tgtL); }',
 '    setTimeout(fitAll, 0);',
 '    // position flipper',
+'    flipper.classList.remove("turn-left","turn-right");',
+'    flipper.classList.add(turnRight ? "turn-right" : "turn-left");',
 '    if(turnRight){ flipper.style.left="50%"; flipper.style.transformOrigin="left center"; }',
 '    else { flipper.style.left="0"; flipper.style.transformOrigin="right center"; }',
 '    flipper.style.transition="none";',
 '    flipper.style.transform="rotateY(0deg)";',
 '    flipper.classList.add("on");',
 '    shade.style.left = turnRight ? "0" : "50%";',
+'    shade.style.background = turnRight ? "linear-gradient(90deg, rgba(0,0,0,.18), rgba(0,0,0,0))" : "linear-gradient(270deg, rgba(0,0,0,.18), rgba(0,0,0,0))";',
 '    shade.style.opacity="0";',
 '    // force reflow then animate',
 '    void flipper.offsetWidth;',
@@ -3644,7 +3651,7 @@ baseStyles,
 '    shade.style.opacity="0.5";',
 '    var done=function(){',
 '      flipper.removeEventListener("transitionend", done);',
-'      vi=ni; flipper.classList.remove("on"); shade.style.opacity="0";',
+'      vi=ni; flipper.classList.remove("on","turn-left","turn-right"); shade.style.opacity="0";',
 '      renderView(views[vi]); updateNav(); animating=false;',
 '    };',
 '    flipper.addEventListener("transitionend", done);',
