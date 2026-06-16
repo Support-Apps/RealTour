@@ -696,6 +696,8 @@
             gap: 20px;
             justify-items: center;
         }
+        /* Hide editor-only controls inside the preview thumbnails */
+        #previewModal .add-second-image-btn { display: none !important; }
         .page-thumb-wrapper {
             overflow: hidden;
             border: 1px solid var(--border-color);
@@ -755,6 +757,43 @@
             box-shadow: 0 4px 16px rgba(0,0,0,0.25); font-family: Arial, sans-serif;
         }
         body.presentation-mode #exitPresentationBtn { display: block; }
+
+        /* ── Mobile sidebar toggle ────────────────────────── */
+        #sidebarToggle{
+            display:none;
+            position:fixed; top:16px; left:16px; z-index: 9101;
+            width:44px; height:44px; border-radius:12px;
+            background: rgba(255,255,255,0.92);
+            border: 1px solid var(--accent-gold);
+            color: var(--text-main);
+            font-size: 20px;
+            line-height: 1;
+            cursor:pointer;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+        }
+        #sidebarToggle:hover{ background:#fff; }
+        body.presentation-mode #sidebarToggle{ display:none !important; }
+
+        /* Make the app usable on phones: slide-out sidebar + full-width preview */
+        @media (max-width: 900px){
+            body{ overflow:hidden; }
+            .sidebar{
+                position: fixed;
+                left: 0; top: 0; bottom: 0;
+                width: min(92vw, 460px);
+                min-width: 0;
+                transform: translateX(0);
+                transition: transform .25s ease;
+                box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+            }
+            body.sidebar-hidden .sidebar{ transform: translateX(-105%); }
+            .preview-area{
+                width: 100vw;
+                /* Leave room for the toggle button */
+                padding: 72px 16px 16px;
+            }
+            #sidebarToggle{ display:block; }
+        }
 
         /* ── Mobile View ──────────────────────────────────── */
         /* Goal: keep the exact desktop page layout, and scale the whole page to fit. */
@@ -901,6 +940,7 @@
 <body>
 
     <button id="exitPresentationBtn" onclick="exitPresentationMode()">✕ <span id="lblBtnExit">Exit Presentation</span></button>
+    <button id="sidebarToggle" type="button" onclick="toggleSidebar()" aria-label="Toggle sidebar" title="Toggle sidebar">☰</button>
 
     <div class="sidebar">
         <div class="logo-branding" id="sideBrandingLogo">Acre &amp; Arch</div>
@@ -2795,6 +2835,27 @@
         }
 
         // ============================================================
+        // MOBILE SIDEBAR TOGGLE
+        // ============================================================
+        function toggleSidebar(forceHidden) {
+            const b = document.body;
+            const shouldHide = (typeof forceHidden === 'boolean')
+                ? forceHidden
+                : !b.classList.contains('sidebar-hidden');
+            b.classList.toggle('sidebar-hidden', shouldHide);
+        }
+
+        function _syncMobileSidebarDefault() {
+            // On small screens, start with the sidebar hidden so the magazine is usable.
+            try {
+                const isSmall = window.matchMedia && window.matchMedia('(max-width: 900px)').matches;
+                if (isSmall) document.body.classList.add('sidebar-hidden');
+            } catch (e) {}
+        }
+        window.addEventListener('DOMContentLoaded', _syncMobileSidebarDefault);
+        window.addEventListener('resize', _syncMobileSidebarDefault);
+
+        // ============================================================
         // VIEW TOGGLE (Desktop / Mobile)
         // ============================================================
         function setViewMode(mode) {
@@ -3424,7 +3485,7 @@ baseStyles,
 '@media (max-width:760px){.fb-toolbar{top:10px;gap:6px;}.fb-tool-btn,.fb-counter{font-size:9px;padding:9px 11px;letter-spacing:1.2px;}.stage{--book-h:min(75vh, calc(100vh - 160px));padding:84px 10px 44px;}}',
 '.leaf{position:absolute;top:0;height:100%;width:50%;overflow:hidden;background:#fff;box-shadow:0 14px 36px rgba(0,0,0,.18);}',
 '.page-shell{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fff;overflow:hidden;}',
-'.page-fit{width:595px;height:842px;transform:scale(1);transform-origin:center center;}',
+'.page-fit{width:595px;height:842px;transform:scale(1);transform-origin:center center;visibility:hidden;}',
 '.page-fit .magazine-page{width:595px !important;height:842px !important;min-width:595px !important;min-height:842px !important;box-shadow:none !important;margin:0 !important;transform:none !important;}',
 '.page-fit .magazine-page *{pointer-events:none !important;}',
 '.leaf.left{left:0;border-right:1px solid rgba(0,0,0,.10);box-shadow:inset -16px 0 32px -22px rgba(0,0,0,.25), 0 14px 36px rgba(0,0,0,.18);}',
@@ -3490,6 +3551,7 @@ baseStyles,
 '      var s = Math.min(w/PW, h/PH);',
 '      if(!isFinite(s) || s<=0) s = 1;',
 '      fit.style.transform = "scale(" + s + ")";',
+'      fit.style.visibility = "visible";',
 '    }catch(e){}',
 '  }',
 '  function fitAll(){ fitShell(leafL); fitShell(leafR); fitShell(fFront); fitShell(fBack); }',
