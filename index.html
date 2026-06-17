@@ -1058,7 +1058,7 @@
         .sidebar::-webkit-scrollbar-thumb{ background: rgba(197,168,128,0.42); border-radius: 999px; border: 2px solid rgba(255,255,255,0.6); }
         .logo-branding{ font-size: 18px; letter-spacing: 5px; padding-bottom: 18px; margin-bottom: 6px; color: #2B2926; border-bottom: 1px solid rgba(43,41,38,0.14); }
         .section-divider{ font-size: 10px; letter-spacing: 2.4px; color: #9F7F54; border-bottom: 1px solid rgba(197,168,128,0.18); padding-bottom: 8px; margin-top: 20px; }
-        .page-editor-block, .accordion-block, .action-menu-panel, .color-control-group{ background: rgba(255,255,255,0.84); border: 1px solid rgba(197,168,128,0.22); border-radius: 18px; box-shadow: 0 12px 26px rgba(58,52,43,0.06); }
+        .page-editor-block, .accordion-block, .action-menu-panel, .color-control-group{ background: rgba(255,255,255,0.84); border: 1px solid rgba(197,168,128,0.22); border-radius: 0; box-shadow: 0 12px 26px rgba(58,52,43,0.06); }
         .page-editor-block{ padding: 18px; }
         .accordion-block{ overflow: hidden; margin-top: 10px; }
         .accordion-header{ padding: 14px 16px; letter-spacing: 1.2px; background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,242,234,0.72)); }
@@ -1066,13 +1066,13 @@
         .accordion-body{ padding: 4px 16px 16px; }
         .input-group{ gap: 8px; }
         label, .toggle-row .toggle-label, .color-control-label{ font-size: 10px; letter-spacing: 1.6px; color: #6E655B; }
-        input, select, textarea{ border: 1px solid rgba(197,168,128,0.20); background: rgba(255,255,255,0.94); border-radius: 14px; padding: 12px 13px; color: #262320; box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 1px 2px rgba(44,37,28,0.04); transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease, background .22s ease; }
+        input, select, textarea{ border: 1px solid rgba(197,168,128,0.20); background: rgba(255,255,255,0.94); border-radius: 0; padding: 12px 13px; color: #262320; box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 1px 2px rgba(44,37,28,0.04); transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease, background .22s ease; }
         input:hover, select:hover, textarea:hover{ border-color: rgba(197,168,128,0.44); }
         input:focus, select:focus, textarea:focus{ border-color: rgba(197,168,128,0.85); box-shadow: 0 0 0 4px rgba(197,168,128,0.12), inset 0 1px 0 rgba(255,255,255,0.9); background: #fff; }
         textarea{ min-height: 72px; }
         input[type="range"]{ height: 8px; border-radius: 999px; background: linear-gradient(90deg, rgba(197,168,128,0.55), rgba(229,229,226,1)); }
         input[type="range"]::-webkit-slider-thumb{ width: 18px; height: 18px; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(58,52,43,0.15); }
-        .custom-file-upload, body .color-toggle-btn, .view-toggle-bar button, #undoBtn, #redoBtn, .action-menu-toggle, .btn-secondary, .btn-action{ border-radius: 14px !important; min-height: 44px; }
+        .custom-file-upload, body .color-toggle-btn, .view-toggle-bar button, #undoBtn, #redoBtn, .action-menu-toggle, .btn-secondary, .btn-action{ border-radius: 0 !important; min-height: 44px; }
         .custom-file-upload{ background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(246,241,233,0.95)); border: 1px dashed rgba(197,168,128,0.6); color: #54483C; font-size: 10px; letter-spacing: 1.6px; padding: 12px 14px; }
         .custom-file-upload:hover{ background: #fff; border-color: var(--accent-gold); transform: translateY(-1px); }
         #undoBtn, #redoBtn{ background: linear-gradient(180deg, #FFFFFF 0%, #F4EFE6 100%) !important; border: 1px solid rgba(197,168,128,0.34) !important; color: #3A342E !important; box-shadow: 0 8px 18px rgba(58,52,46,0.08); }
@@ -1117,11 +1117,11 @@
         .action-menu-panel{ gap: 14px; padding: 14px; margin-top: 14px; background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(247,242,234,0.82)); }
         .action-menu-title{ letter-spacing: 2.6px; color: #433A32; }
         .action-menu-list{ gap: 10px; }
-        .autosave-note{ display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px; background: rgba(197,168,128,0.12); border: 1px solid rgba(197,168,128,0.18); color: #9F7F54; font-size: 8px; letter-spacing: 1.4px; margin-top: -2px; }
+        .autosave-note{ display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 0; background: rgba(197,168,128,0.12); border: 1px solid rgba(197,168,128,0.18); color: #9F7F54; font-size: 8px; letter-spacing: 1.4px; margin-top: -2px; }
         .toggle-slider{ background: rgba(197,168,128,0.24); box-shadow: inset 0 1px 2px rgba(58,52,43,0.10); }
         .toggle-slider:before{ box-shadow: 0 2px 6px rgba(58,52,43,0.16); }
         .toggle-switch input:checked + .toggle-slider{ background: linear-gradient(90deg, #D2B286, #B8905E); }
-        #sidebarToggle{ border-radius: 16px; background: rgba(255,255,255,0.94); border: 1px solid rgba(197,168,128,0.42); box-shadow: 0 14px 28px rgba(40,33,24,0.18); transition: transform .2s ease, background .2s ease; }
+        #sidebarToggle{ border-radius: 0; background: rgba(255,255,255,0.94); border: 1px solid rgba(197,168,128,0.42); box-shadow: 0 14px 28px rgba(40,33,24,0.18); transition: transform .2s ease, background .2s ease; }
         #sidebarToggle:hover{ background: #fff; transform: translateY(-1px); }
         @media (max-width: 900px){ .sidebar{ box-shadow: 0 20px 44px rgba(32,28,24,0.24); } }
 
@@ -1185,7 +1185,11 @@
             <input type="range" id="lineHeightSlider" min="1.3" max="2.6" step="0.1" value="1.6" oninput="updateLineHeight()">
         </div>
         <div class="input-group">
-            <label id="lblAgentSpacing">2. Agent Signature Card Spacing</label>
+            <label id="lblCoverTitleSpacing">2. Cover Title Spacing</label>
+            <input type="range" id="coverTitleSpacingSlider" min="0" max="40" step="1" value="10" oninput="updateCoverTitleSpacing()">
+        </div>
+        <div class="input-group">
+            <label id="lblAgentSpacing">3. Agent Signature Card Spacing</label>
             <input type="range" id="agentLineHeightSlider" min="0.7" max="2.6" step="0.05" value="1.5" oninput="updateAgentLineHeight()">
         </div>
 
@@ -1483,6 +1487,7 @@
                     fontHeadings:        document.getElementById('fontHeadingsSelect').value,
                     fontBody:            document.getElementById('fontBodySelect').value,
                     lineHeight:          document.getElementById('lineHeightSlider').value,
+                    coverTitleSpacing:   document.getElementById('coverTitleSpacingSlider').value,
                     agentLineHeight:     document.getElementById('agentLineHeightSlider').value,
                     sigGap:              document.getElementById('sigGapSlider')?.value || '6',
                     inMainTitle:         document.getElementById('inMainTitle').value,
@@ -1536,7 +1541,7 @@
                     lang: 'langSelect', agency: 'agencyInput', agent: 'agentInput',
                     client: 'clientName', studioLogo: 'inStudioLogo',
                     fontHeadings: 'fontHeadingsSelect', fontBody: 'fontBodySelect',
-                    lineHeight: 'lineHeightSlider', agentLineHeight: 'agentLineHeightSlider',
+                    lineHeight: 'lineHeightSlider', coverTitleSpacing: 'coverTitleSpacingSlider', agentLineHeight: 'agentLineHeightSlider',
                     sigGap: 'sigGapSlider',
                     inMainTitle: 'inMainTitle', inSubtitle: 'inSubtitle',
                     inClosingHeading: 'inClosingHeading', mediaLink: 'mediaLinkInput',
@@ -1607,6 +1612,7 @@
                     changeLanguage();
                     updateFonts();
                     updateLineHeight();
+                    updateCoverTitleSpacing();
                     updateAgentLineHeight();
                     updateAllLiveTexts();
                     for (let i = 1; i <= totalPagesCreated; i++) {
@@ -1842,7 +1848,7 @@
             en: {
                 labels: {
                     lblLang: "Select Language", divSpacingTitle: "Typography Spacing Options",
-                    lblSpacing: "1. Room Narratives Spacing", lblAgentSpacing: "2. Agent Signature Card Spacing", 
+                    lblSpacing: "1. Room Narratives Spacing", lblCoverTitleSpacing: "2. Cover Title Spacing", lblAgentSpacing: "3. Agent Signature Card Spacing", 
                     lblColorPanel: "Color Customization", divMeta: "Agency & Agent Info",
                     lblAgency: "Real Estate Agency", lblAgent: "Managing Broker / Agent", lblClient: "Client Name",
                     btnDownload: "Download Magazine PDF", divTypography: "Brand Typography",
@@ -1884,7 +1890,7 @@
             fr: {
                 labels: {
                     lblLang: "Sélectionner la Langue", divSpacingTitle: "Espacement Typographique",
-                    lblSpacing: "1. Espacement des Récits", lblAgentSpacing: "2. Espacement Carte de l'Agent", 
+                    lblSpacing: "1. Espacement des Récits", lblCoverTitleSpacing: "2. Espacement Titre de Couverture", lblAgentSpacing: "3. Espacement Carte de l'Agent", 
                     lblColorPanel: "Personnalisation des Couleurs", divMeta: "Infos Agence & Agent",
                     lblAgency: "Agence Immobilière", lblAgent: "Courtier / Agent", lblClient: "Nom du Client",
                     btnDownload: "Exporter le Lookbook (PDF)", divTypography: "Typographie de la Marque",
@@ -1926,7 +1932,7 @@
             ar: {
                 labels: {
                     lblLang: "اختر اللغة", divSpacingTitle: "خيارات تباعد الأسطر",
-                    lblSpacing: "١. تباعد أسطر قصص الغرف", lblAgentSpacing: "٢. تباعد كارت توقيع الوكيل", 
+                    lblSpacing: "١. تباعد أسطر قصص الغرف", lblCoverTitleSpacing: "٢. تباعد عنوان الغلاف", lblAgentSpacing: "٣. تباعد كارت توقيع الوكيل", 
                     lblColorPanel: "تخصيص الألوان", divMeta: "بيانات الوكالة والوكيل",
                     lblAgency: "الوكالة العقارية", lblAgent: "الوكيل العقاري", lblClient: "اسم العميل",
                     btnDownload: "تحميل المجلة الفاخرة (PDF)", divTypography: "خطوط الهوية العقارية",
@@ -2263,6 +2269,7 @@
 
             updateAllLiveTexts();
             updateLineHeight();
+            updateCoverTitleSpacing();
             updateAgentLineHeight();
             updateFonts();
         }
@@ -2270,6 +2277,12 @@
         function updateLineHeight() {
             const value = document.getElementById('lineHeightSlider').value;
             document.querySelectorAll('.editorial-text').forEach(el => { el.style.lineHeight = value; });
+        }
+
+        function updateCoverTitleSpacing() {
+            const value = document.getElementById('coverTitleSpacingSlider').value;
+            const title = document.getElementById('outMainTitle');
+            if (title) title.style.marginBottom = value + 'px';
         }
 
         function updateAgentLineHeight() {
