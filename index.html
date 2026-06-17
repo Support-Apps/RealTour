@@ -308,6 +308,15 @@
             align-items: center;
             gap: 45px;
         }
+        #magazineViewport {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 45px;
+            transform-origin: top center;
+        }
+
 
         .magazine-page {
             width: 595px;
@@ -420,8 +429,8 @@
             gap: 20px;
             align-items: flex-start;
             width: 100%;
-            padding-top: 55px;
-            padding-bottom: 55px;
+            padding-top: 75px;
+            padding-bottom: 2px;
             box-sizing: border-box;
         }
         .layout-double .grid-col {
@@ -868,6 +877,7 @@
         /* Goal: keep the exact desktop page layout, and scale the whole page to fit. */
         .preview-area.mobile-view { background-color: #B8B8B6; padding: 18px 12px 20px; }
         .preview-area.mobile-view { gap: 24px; }
+        .preview-area.mobile-view #magazineViewport { gap: 24px; }
         .page-scale-wrap {
             margin: 0 auto;
             display: block;
@@ -1380,11 +1390,19 @@
                 </div>
                 <button class="btn-action uniform-action-btn" id="btnDownload" onclick="openPreviewModal()">👁 <span id="lblBtnPreview">Preview &amp; Download</span></button>
                 <button class="btn-action uniform-action-btn" id="btnFlipbook" onclick="openFlipbook()">📖 <span id="lblBtnFlipbook">Create Flipbook</span></button>
+                <div style="display:flex; gap:6px; width:100%;">
+                    <button class="btn-secondary uniform-action-btn" type="button" onclick="adjustPreviewZoom(-0.1)" title="Zoom out" style="flex:1; font-size:18px; padding:10px;">−</button>
+                    <button class="btn-secondary uniform-action-btn" type="button" id="previewZoomReset" onclick="resetPreviewZoom()" title="Reset zoom" style="flex:2; font-size:11px; letter-spacing:1px;">🔍 <span id="lblZoomLevel">100%</span></button>
+                    <button class="btn-secondary uniform-action-btn" type="button" onclick="adjustPreviewZoom(0.1)" title="Zoom in" style="flex:1; font-size:18px; padding:10px;">+</button>
+                </div>
             </div>
         </div>
     </div>
 
+
+
     <div class="preview-area" id="magazineContainer">
+        <div id="magazineViewport">
 
         <div class="magazine-page" id="pageCover">
             <div class="mag-header" id="hCover">
@@ -1430,6 +1448,7 @@
                 </div>
             </div>
             <div class="mag-footer"><span id="fEndLeft">Secured Portfolio Document</span><span class="fPageNum" id="pnEnd">— Page 6 —</span></div>
+        </div>
         </div>
 
     </div>
@@ -1819,6 +1838,10 @@
 
         let totalPagesCreated = 0;
         let currentLang = 'en';
+        let previewZoom = 1;
+        const PREVIEW_ZOOM_MIN = 0.8;
+        const PREVIEW_ZOOM_MAX = 1.6;
+        const PREVIEW_ZOOM_STEP = 0.1;
 
         function getDynamicMagazinePages() {
             return Array.from(document.querySelectorAll('#magazineContainer .magazine-page[id^="magPage_"]'))
@@ -2274,6 +2297,7 @@
             updateCoverTitleSpacing();
             updateAgentLineHeight();
             updateFonts();
+            requestAnimationFrame(positionPreviewZoomControls);
         }
 
         function updateLineHeight() {
@@ -3064,6 +3088,30 @@
         window.addEventListener('DOMContentLoaded', _syncMobileSidebarDefault);
         window.addEventListener('resize', _syncMobileSidebarDefault);
 
+        function showPreviewZoomControls() { /* zoom is now in sidebar */ }
+        function positionPreviewZoomControls() { /* zoom controls are in sidebar, no positioning needed */ }
+
+        function applyPreviewZoom() {
+            const viewport = document.getElementById('magazineViewport');
+            const label = document.getElementById('lblZoomLevel');
+            if (!viewport) return;
+            viewport.style.zoom = String(previewZoom);
+            if (label) label.innerText = Math.round(previewZoom * 100) + '%';
+        }
+
+        function adjustPreviewZoom(delta) {
+            const next = Math.round((previewZoom + delta) * 100) / 100;
+            previewZoom = Math.max(PREVIEW_ZOOM_MIN, Math.min(PREVIEW_ZOOM_MAX, next));
+            applyPreviewZoom();
+            showPreviewZoomControls();
+        }
+
+        function resetPreviewZoom() {
+            previewZoom = 1;
+            applyPreviewZoom();
+            showPreviewZoomControls();
+        }
+
         // ============================================================
         // VIEW TOGGLE (Desktop / Mobile)
         // ============================================================
@@ -3078,12 +3126,14 @@
                 btnM.classList.add('active');
                 btnD.classList.remove('active');
                 _applyMobileScale();
+                requestAnimationFrame(positionPreviewZoomControls);
             } else {
                 container.classList.remove('mobile-view');
                 btnD.classList.add('active');
                 btnM.classList.remove('active');
                 if (wrapper) wrapper.style.height = (logoImg && logoImg.src.startsWith('data:')) ? '295px' : '360px';
                 _clearMobileScale();
+                requestAnimationFrame(positionPreviewZoomControls);
             }
         }
 
@@ -3142,6 +3192,7 @@
         window.addEventListener('resize', () => {
             const container = document.getElementById('magazineContainer');
             if (container && container.classList.contains('mobile-view')) _applyMobileScale();
+            positionPreviewZoomControls();
         });
 
         // ============================================================
@@ -3461,9 +3512,12 @@
 
         function downloadPDF() {
             const element = document.getElementById('magazineContainer');
+            const viewport = document.getElementById('magazineViewport');
             // Hide editor-only UI inside export.
             // Important: html2pdf clones the "element" into its own container, so we must tag the element itself.
             element.classList.add('pdf-exporting');
+            const _prevZoom = viewport ? viewport.style.zoom : '';
+            if (viewport) viewport.style.zoom = '1';
             // Extra safety: hide buttons inline so they cannot leak into the clone/canvas.
             const _pdfBtns = Array.from(element.querySelectorAll('.add-second-image-btn'));
             const _pdfPrevDisplay = _pdfBtns.map(b => b.style.display);
@@ -3485,8 +3539,12 @@
             const _cleanup = () => {
                 try { element.classList.remove('pdf-exporting'); } catch(e) {}
                 try {
+                    if (viewport) viewport.style.zoom = _prevZoom || String(previewZoom);
+                } catch(e) {}
+                try {
                     _pdfBtns.forEach((b, i) => { b.style.display = _pdfPrevDisplay[i] || ''; });
                 } catch(e) {}
+                requestAnimationFrame(positionPreviewZoomControls);
             };
             try {
                 const job = html2pdf().set(options).from(element).save();
@@ -3542,6 +3600,17 @@
 
             // Generate color palettes for the color picker
             generateColorPalettes();
+            applyPreviewZoom();
+            // Show zoom controls on interaction, then auto-hide.
+            const _mc = document.getElementById('magazineContainer');
+            if (_mc) {
+                _mc.addEventListener('mouseenter', showPreviewZoomControls);
+                _mc.addEventListener('mousemove', showPreviewZoomControls);
+                _mc.addEventListener('touchstart', showPreviewZoomControls, { passive: true });
+                _mc.addEventListener('scroll', () => {
+
+                }, { passive: true });
+            }
 
         };
     </script>
