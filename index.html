@@ -413,7 +413,9 @@
         }
         .layout-single .img-box-a {
             width: 100%;
-            height: 500px;
+            height: 500px !important;
+            min-height: 500px !important;
+            max-height: 500px !important;
         }
         /* when in layout-single, image A fills full width and B wrapper is hidden */
         .layout-single .box-a-wrapper {
@@ -651,7 +653,9 @@
         }
         .accordion-header:hover { background: #F5F3EF; }
         .accordion-arrow { font-size: 10px; color: var(--accent-gold); transition: 0.2s; }
-        .accordion-body { padding: 0 15px 15px 15px; display: flex; flex-direction: column; gap: 12px; }
+        .accordion-body { padding: 14px 15px 18px 15px; display: flex; flex-direction: column; gap: 28px; }
+        .input-group-or-type { margin-top: 4px; padding-top: 16px; border-top: 1px solid rgba(197,168,128,0.18); }
+        .input-group-section { margin-top: 4px; padding-top: 16px; border-top: 1px solid rgba(197,168,128,0.18); }
 
         /* ── Color Picker Panel ────────────────────────────────── */
         .color-picker-section {
@@ -1071,14 +1075,14 @@
         .logo-branding{ font-size: 18px; letter-spacing: 5px; padding-bottom: 18px; margin-bottom: 6px; color: #2B2926; border-bottom: 1px solid rgba(43,41,38,0.14); }
         .section-divider{ font-size: 10px; letter-spacing: 2.4px; color: #9F7F54; border-bottom: 1px solid rgba(197,168,128,0.18); padding-bottom: 8px; margin-top: 20px; }
         .page-editor-block, .accordion-block, .action-menu-panel, .color-control-group{ background: rgba(255,255,255,0.84); border: 1px solid rgba(197,168,128,0.22); border-radius: 0; box-shadow: 0 12px 26px rgba(58,52,43,0.06); }
-        .page-editor-block{ padding: 18px; }
+        .page-editor-block{ padding: 18px; gap: 18px; }
         .accordion-block{ overflow: hidden; margin-top: 10px; }
         .accordion-header{ padding: 14px 16px; letter-spacing: 1.2px; background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,242,234,0.72)); }
         .accordion-header:hover{ background: linear-gradient(180deg, rgba(255,255,255,1), rgba(243,235,223,0.9)); }
-        .accordion-body{ padding: 4px 16px 16px; }
+        .accordion-body{ padding: 14px 16px 18px; gap: 28px; }
         .input-group{ gap: 8px; }
         label, .toggle-row .toggle-label, .color-control-label{ font-size: 10px; letter-spacing: 1.6px; color: #6E655B; }
-        input, select, textarea{ border: 1px solid rgba(197,168,128,0.20); background: rgba(255,255,255,0.94); border-radius: 0; padding: 12px 13px; color: #262320; box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 1px 2px rgba(44,37,28,0.04); transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease, background .22s ease; }
+        input, select, textarea{ border: 1px solid rgba(197,168,128,0.20); background: rgba(255,255,255,0.94); border-radius: 0; padding: 13px 16px; color: #262320; box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 1px 2px rgba(44,37,28,0.04); transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease, background .22s ease; }
         input:hover, select:hover, textarea:hover{ border-color: rgba(197,168,128,0.44); }
         input:focus, select:focus, textarea:focus{ border-color: rgba(197,168,128,0.85); box-shadow: 0 0 0 4px rgba(197,168,128,0.12), inset 0 1px 0 rgba(255,255,255,0.9); background: #fff; }
         textarea{ min-height: 72px; }
@@ -1094,6 +1098,8 @@
         .btn-secondary:hover, .uniform-action-btn:hover, .action-menu-toggle:hover, .view-toggle-bar button:hover{ background: linear-gradient(180deg, #F7E3C1 0%, #E0C195 100%) !important; color: #2F2924 !important; border-color: rgba(197,168,128,0.82) !important; transform: translateY(-1px); }
         .btn-action{ background: linear-gradient(180deg, #2F2B27 0%, #161411 100%) !important; color: #fff !important; border: 1px solid rgba(0,0,0,0.08) !important; box-shadow: 0 14px 28px rgba(28,24,21,0.16); }
         .btn-action:hover{ background: linear-gradient(180deg, #C6A97F 0%, #AF8959 100%) !important; color: #fff !important; transform: translateY(-1px); }
+        #btnModalBack, #btnModalDownload, #btnModalFlipbook{ background: linear-gradient(180deg, #FFFFFF 0%, #F6F1E9 100%) !important; color: #5A4D3F !important; border: 1px solid rgba(197,168,128,0.34) !important; box-shadow: 0 8px 18px rgba(58,52,46,0.07) !important; }
+        #btnModalBack:hover, #btnModalDownload:hover, #btnModalFlipbook:hover{ background: linear-gradient(180deg, #F7E3C1 0%, #E0C195 100%) !important; color: #2F2924 !important; border-color: rgba(197,168,128,0.82) !important; transform: translateY(-1px); }
         #btnDownload, #btnFlipbook{
             background: linear-gradient(180deg, #FFFFFF 0%, #F6F1E9 100%) !important;
             color: #5A4D3F !important;
@@ -2247,9 +2253,10 @@
 
                 const selectH = document.getElementById(`selectHeading_${i}`);
                 if (selectH) {
-                    const allTitleOpts = roomPhrasesData[currentLang].map(cat =>
-                        cat.titles.map(t => `<option value="${t.replace(/"/g,'&quot;')}">${t}</option>`).join('')
-                    ).join('');
+                    const allTitleOpts = roomPhrasesData[currentLang].map((cat, ci) => {
+                        const opts = cat.titles.map(t => `<option value="${t.replace(/"/g,'&quot;')}" data-cat="${ci}">${t}</option>`).join('');
+                        return `<optgroup label="${cat.titles[0].replace(/"/g,'&quot;')}">${opts}</optgroup>`;
+                    }).join('');
                     selectH.innerHTML = allTitleOpts;
                     const defTitle = roomPhrasesData[currentLang][(i-1)%12].titles[0];
                     selectH.value = defTitle;
@@ -2324,9 +2331,10 @@
             const defaultRoomIndex = (pageIndex - 1) % 12;
             const data = systemData[currentLang];
 
-            const allTitleOpts = roomPhrasesData[currentLang].map((cat, ci) =>
-                cat.titles.map(t => `<option value="${t.replace(/"/g,'&quot;')}" data-cat="${ci}">${t}</option>`).join('')
-            ).join('');
+            const allTitleOpts = roomPhrasesData[currentLang].map((cat, ci) => {
+                const opts = cat.titles.map(t => `<option value="${t.replace(/"/g,'&quot;')}" data-cat="${ci}">${t}</option>`).join('');
+                return `<optgroup label="${cat.titles[0].replace(/"/g,'&quot;')}">${opts}</optgroup>`;
+            }).join('');
 
             const buildNarrativeOpts = (slot) => roomPhrasesData[currentLang].map((cat) => {
                 const phrases = slot === 'A' ? cat.phrasesA : cat.phrasesB;
@@ -2352,11 +2360,11 @@
                         <label id="lblHeading_${pageIndex}">${data.labels.lblHeading}</label>
                         <select id="selectHeading_${pageIndex}" onchange="syncHeading(${pageIndex})">${allTitleOpts}</select>
                     </div>
-                    <div class="input-group">
+                    <div class="input-group input-group-or-type">
                         <label id="lblOrManualHeading_${pageIndex}">${data.labels.lblOrManualHeading}</label>
                         <input type="text" id="inHeading_${pageIndex}" placeholder="${data.labels.placeholderHeading}" onchange="syncHeading(${pageIndex})">
                     </div>
-                    <div class="input-row">
+                    <div class="input-row input-group-section">
                         <div class="input-group">
                             <label id="lblPhotoA_${pageIndex}">${data.labels.lblPhotoA}</label>
                             <div class="file-upload-wrapper">
@@ -2372,19 +2380,19 @@
                             </div>
                         </div>
                     </div>
-                    <div class="input-group">
+                    <div class="input-group input-group-section">
                         <label id="lblNarrativeA_${pageIndex}">${data.labels.lblNarrativeA}</label>
                         <select id="selectTextA_${pageIndex}" onchange="syncDropdownText(${pageIndex}, 'A')">${buildNarrativeOpts('A')}</select>
                     </div>
-                    <div class="input-group">
+                    <div class="input-group input-group-or-type">
                         <label id="lblOrManualNarrativeA_${pageIndex}">${data.labels.lblOrManualNarrativeA}</label>
                         <textarea id="inTextA_${pageIndex}" placeholder="${data.labels.placeholderNarrativeA}" onchange="syncDropdownText(${pageIndex}, 'A')" style="min-height:60px;"></textarea>
                     </div>
-                    <div class="input-group">
+                    <div class="input-group input-group-section">
                         <label id="lblNarrativeB_${pageIndex}">${data.labels.lblNarrativeB}</label>
                         <select id="selectTextB_${pageIndex}" onchange="syncDropdownText(${pageIndex}, 'B')">${buildNarrativeOpts('B')}</select>
                     </div>
-                    <div class="input-group">
+                    <div class="input-group input-group-or-type">
                         <label id="lblOrManualNarrativeB_${pageIndex}">${data.labels.lblOrManualNarrativeB}</label>
                         <textarea id="inTextB_${pageIndex}" placeholder="${data.labels.placeholderNarrativeB}" onchange="syncDropdownText(${pageIndex}, 'B')" style="min-height:60px;"></textarea>
                     </div>
@@ -3353,6 +3361,20 @@
             document.querySelectorAll('.magazine-page').forEach((page, idx) => {
                 const clone = page.cloneNode(true);
                 clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+
+                // Fix image heights: reset any inline height/min-height/max-height on content img-container elements
+                // so CSS class rules (.layout-single .img-box-a, .layout-double .img-box-a etc.) take full effect.
+                // We only clear .img-box-a / .img-box-b — the cover image wrapper has its own intended height.
+                clone.querySelectorAll('.img-container.img-box-a, .img-container.img-box-b').forEach(el => {
+                    el.style.height = '';
+                    el.style.minHeight = '';
+                    el.style.maxHeight = '';
+                });
+                // Also ensure layout wrappers don't have stale inline styles
+                clone.querySelectorAll('.page-content-container').forEach(el => {
+                    el.style.height = '';
+                });
+
                 clone.style.cssText += `; transform:scale(${SCALE}); transform-origin:top left; pointer-events:none; position:absolute; top:0; left:0; margin:0;`;
                 const inner = document.createElement('div');
                 inner.style.cssText = `position:relative; width:${W}px; height:${H}px; overflow:hidden; flex-shrink:0;`;
