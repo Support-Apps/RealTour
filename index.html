@@ -3522,35 +3522,67 @@
         }
 
         async function shareViaEmail() {
+            document.getElementById('shareMenu').style.display = 'none';
             const { client, agent, agency, prop } = _shareInfo();
             const subject = `Your Exclusive Lookbook — ${prop}`;
             const body = `Dear ${client},\n\nPlease find attached your exclusive luxury real estate lookbook for "${prop}".\n\nWe look forward to presenting this exceptional property to you.\n\nBest regards,\n${agent}\n${agency}`;
-            // Try the native share sheet first (mobile + supported desktop browsers)
-            if (navigator.share) {
-                try {
-                    await navigator.share({ title: subject, text: body });
-                    document.getElementById('shareMenu').style.display = 'none';
-                    return;
-                } catch (e) {
-                    if (e && e.name === 'AbortError') {
-                        document.getElementById('shareMenu').style.display = 'none';
-                        return;
-                    }
-                }
-            }
-            // Fallback: open the user's default mail client via mailto:
-            const url = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+            // Show generating toast
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1C1C1A;color:#fff;padding:16px 24px;font-size:13px;letter-spacing:.4px;z-index:99999;box-shadow:0 6px 28px rgba(0,0,0,.32);text-align:center;max-width:360px;line-height:1.6;border-radius:4px;';
+            toast.innerHTML = '📄 Generating PDF for Email…<br><span style="font-size:11px;color:#C5A880;">This may take a few seconds</span>';
+            document.body.appendChild(toast);
+
             try {
+                const element = document.getElementById('magazineContainer');
+                const viewport = document.getElementById('magazineViewport');
+                element.classList.add('pdf-exporting');
+                const _prevZoom = viewport ? viewport.style.zoom : '';
+                if (viewport) viewport.style.zoom = '1';
+
+                const fname = `lookbook_${(prop || 'presentation').replace(/[^a-z0-9]/gi,'_')}.pdf`;
+                const pdfBlob = await html2pdf().set({
+                    margin: 0,
+                    filename: fname,
+                    image: { type: 'jpeg', quality: 0.92 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                }).from(element).outputPdf('blob');
+
+                element.classList.remove('pdf-exporting');
+                if (viewport) viewport.style.zoom = _prevZoom;
+
+                const pdfFile = new File([pdfBlob], fname, { type: 'application/pdf' });
+
+                // ── Mobile: attach PDF directly via OS share sheet → user picks Mail/Gmail ──
+                if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+                    toast.remove();
+                    try {
+                        await navigator.share({ files: [pdfFile], title: subject, text: body });
+                        return;
+                    } catch(e) { if (e && e.name === 'AbortError') return; }
+                }
+
+                // ── Desktop fallback: download PDF + open mail client ──
+                const dlUrl = URL.createObjectURL(pdfBlob);
                 const a = document.createElement('a');
-                a.href = url; a.target = '_top'; a.rel = 'noopener';
+                a.href = dlUrl; a.download = fname;
                 a.style.display = 'none';
-                document.body.appendChild(a); a.click();
-                setTimeout(() => a.remove(), 1500);
-            } catch (e) {
-                try { (window.top || window).location.href = url; }
-                catch (_) { window.open(url, '_blank'); }
+                document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(dlUrl), 8000);
+
+                toast.innerHTML = '✓ PDF saved!<br><span style="font-size:11px;color:#C5A880;">Attach it in your email app ↓</span>';
+                const mailUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                setTimeout(() => _launchShareLink(mailUrl, { top: true }), 700);
+                setTimeout(() => toast.remove(), 7000);
+
+            } catch(e) {
+                toast.remove();
+                // Fallback: plain mailto if PDF generation fails
+                const url = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                _launchShareLink(url, { top: true });
             }
-            document.getElementById('shareMenu').style.display = 'none';
         }
 
         async function shareViaWhatsApp() {
@@ -3898,8 +3930,23 @@
             // Ensure layout has settled before capture
             await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
+            // Convert a blob: or object URL to a base64 data URI so it survives file sharing
+            async function toDataURI(url) {
+                if (!url || !url.startsWith('blob:')) return url;
+                try {
+                    const resp = await fetch(url);
+                    const blob = await resp.blob();
+                    return await new Promise((res, rej) => {
+                        const reader = new FileReader();
+                        reader.onload  = () => res(reader.result);
+                        reader.onerror = rej;
+                        reader.readAsDataURL(blob);
+                    });
+                } catch(e) { return url; }
+            }
+
             console.log('[flipbook] collecting live pages:', ordered.length);
-            return ordered.map(page => {
+            return Promise.all(ordered.map(async page => {
                 const clone = page.cloneNode(true);
                 clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
                 clone.querySelectorAll('*').forEach(el => {
@@ -3915,8 +3962,26 @@
                 clone.style.minWidth = '595px';
                 clone.style.minHeight = '842px';
                 clone.style.transform = 'none';
+
+                // ── Resolve all blob URLs to self-contained data URIs ──
+                // img[src]
+                await Promise.all(Array.from(clone.querySelectorAll('img[src]')).map(async img => {
+                    const src = img.getAttribute('src');
+                    if (src && src.startsWith('blob:')) img.setAttribute('src', await toDataURI(src));
+                }));
+                // inline background-image: url(blob:...)
+                await Promise.all(Array.from(clone.querySelectorAll('[style]')).map(async el => {
+                    const bg = el.style.backgroundImage;
+                    if (!bg) return;
+                    const m = bg.match(/url\(["']?(blob:[^"')]+)["']?\)/);
+                    if (m) {
+                        const dataUri = await toDataURI(m[1]);
+                        el.style.backgroundImage = bg.replace(m[1], dataUri);
+                    }
+                }));
+
                 return clone.outerHTML;
-            });
+            }));
         }
 
         // ---- Build a fully self-contained flipbook HTML document ----
@@ -4053,6 +4118,16 @@ baseStyles,
 '  views.push({l:i,r:(j<=n-2?j:null)});',
 '}',
 'if(n>1)views.push({l:n-1,single:"l"});',
+'/* ── Mobile: single-page view on narrow screens ── */',
+'if(window.innerWidth<700||screen.width<700){',
+'  var sv=[];',
+'  for(var mi=0;mi<n;mi++){',
+'    if(mi===0)sv.push({r:0,single:"r"});',
+'    else if(mi===n-1)sv.push({l:n-1,single:"l"});',
+'    else sv.push({r:mi,single:"r"});',
+'  }',
+'  views=sv;',
+'}',
 /* ── Helpers ── */
 'function setShell(sh,idx){',
 '  if(idx===null||idx===undefined){sh.innerHTML="";sh.style.visibility="hidden";return;}',
@@ -4064,13 +4139,16 @@ baseStyles,
    the scale is identical in both modes — no jump when the book width transitions. */
 'function fitShell(sh){',
 '  try{var fit=sh&&sh.querySelector(".page-fit");if(!fit)return;',
-'  var H=book.offsetHeight||0,shellW=H*0.707;',
-'  var s=(H>0)?Math.min(shellW/PW,H/PH):1;',
+'  var W=sh.offsetWidth||0,H=sh.offsetHeight||0;',
+'  if(!W||!H){var bH=book.offsetHeight||0;W=bH*0.707;H=bH;}',
+'  var s=(W>0&&H>0)?Math.min(W/PW,H/PH):1;',
 '  if(!isFinite(s)||s<=0)s=1;',
 '  fit.style.transform="scale("+s+")";fit.style.visibility="visible";}catch(e){}',
 '}',
 'function fitAll(){fitShell(slShell);fitShell(srShell);fitShell(ffShell);fitShell(fbShell);}',
 'window.addEventListener("resize",function(){setTimeout(fitAll,0);});',
+'window.addEventListener("load",function(){setTimeout(fitAll,80);setTimeout(fitAll,400);});',
+'try{var _ro=new ResizeObserver(function(){setTimeout(fitAll,0);});_ro.observe(book);}catch(e){}',
 'function renderView(v){',
 '  if(v.single==="r"){',
 '    book.className="book single-r";',
@@ -4212,6 +4290,7 @@ baseStyles,
 'document.addEventListener("keydown",function(e){if(e.key==="Escape"){fbClose();return;}if((e.ctrlKey||e.metaKey)&&(e.key==="+"||e.key==="=")){e.preventDefault();zoom=Math.min(ZMAX,zoom+ZSTEP);applyZoom();return;}if((e.ctrlKey||e.metaKey)&&(e.key==="-"||e.key==="_")){e.preventDefault();zoom=Math.max(ZMIN,zoom-ZSTEP);applyZoom();return;}if((e.ctrlKey||e.metaKey)&&e.key==="0"){e.preventDefault();zoom=1;applyZoom();return;}var fwd=RTL?"ArrowLeft":"ArrowRight",back=RTL?"ArrowRight":"ArrowLeft";if(e.key===fwd)doFlip("next");else if(e.key===back)doFlip("prev");});',
 'document.addEventListener("wheel",function(e){if(e.ctrlKey||e.metaKey){e.preventDefault();zoom=Math.max(ZMIN,Math.min(ZMAX,zoom+(e.deltaY<0?ZSTEP:-ZSTEP)));applyZoom();}},{passive:false});',
 'renderView(views[0]);updateNav();applyZoom();',
+'setTimeout(fitAll,100);setTimeout(fitAll,500);setTimeout(fitAll,1200);',
 '})();',
 '<\/script>',
 '</body>',
