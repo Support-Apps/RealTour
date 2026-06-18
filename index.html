@@ -3551,13 +3551,56 @@
             document.getElementById('shareMenu').style.display = 'none';
         }
 
-        function shareViaWhatsApp() {
-            const { client, agent, prop } = _shareInfo();
-            const text = encodeURIComponent(
-                `Dear ${client}, your exclusive luxury real estate lookbook for "${prop}" is ready. Best regards, ${agent} 🏡`
-            );
-            _launchShareLink(`https://wa.me/?text=${text}`);
+        async function shareViaWhatsApp() {
             document.getElementById('shareMenu').style.display = 'none';
+            const { client, agent, prop } = _shareInfo();
+
+            // Step 1 — try native Web Share API with a generated PDF file (works on mobile)
+            if (navigator.canShare) {
+                try {
+                    const element = document.getElementById('magazineContainer');
+                    const blob = await html2pdf().set({
+                        margin: 0, filename: 'lookbook.pdf',
+                        image: { type: 'jpeg', quality: 0.85 },
+                        html2canvas: { scale: 1.5, useCORS: true },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    }).from(element).outputPdf('blob');
+                    const file = new File([blob], 'lookbook.pdf', { type: 'application/pdf' });
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({ files: [file], title: `Lookbook — ${prop}`, text: `Dear ${client}, your exclusive luxury real estate lookbook for "${prop}" is ready.\n\nBest regards, ${agent}` });
+                        return;
+                    }
+                } catch(e) { if (e && e.name === 'AbortError') return; }
+            }
+
+            // Step 2 — fallback: download PDF then open WhatsApp with instruction text
+            const text = encodeURIComponent(`Dear ${client}, your exclusive luxury real estate lookbook for "${prop}" is ready.\n\nBest regards, ${agent} 🏡\n\n(Please see the attached PDF)`);
+            // Show a helper toast
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1C1C1A;color:#fff;padding:14px 22px;font-size:13px;letter-spacing:.5px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.3);text-align:center;max-width:340px;line-height:1.5;';
+            toast.innerHTML = '📥 Downloading PDF…<br><span style="font-size:11px;color:#C5A880;">Then attach it in WhatsApp manually</span>';
+            document.body.appendChild(toast);
+
+            // Trigger PDF download
+            const element = document.getElementById('magazineContainer');
+            const viewport = document.getElementById('magazineViewport');
+            element.classList.add('pdf-exporting');
+            const _prevZoom = viewport ? viewport.style.zoom : '';
+            if (viewport) viewport.style.zoom = '1';
+            await html2pdf().set({
+                margin: 0, filename: `lookbook_${prop || 'presentation'}.pdf`,
+                image: { type: 'jpeg', quality: 0.88 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            }).from(element).save();
+            element.classList.remove('pdf-exporting');
+            if (viewport) viewport.style.zoom = _prevZoom;
+
+            // Update toast and open WhatsApp
+            toast.innerHTML = '✓ PDF downloaded!<br><span style="font-size:11px;color:#C5A880;">Now attach it in WhatsApp ↓</span>';
+            setTimeout(() => { _launchShareLink(`https://wa.me/?text=${text}`); }, 800);
+            setTimeout(() => toast.remove(), 5000);
         }
 
         // ---- Save / Delete page management ----
@@ -4221,10 +4264,55 @@ baseStyles,
             setTimeout(() => URL.revokeObjectURL(url), 10000);
         };
 
-        window.shareFlipbookWhatsApp = function () {
-            const text = encodeURIComponent('🏡 ' + _shareName() + ' — ' + L().dl);
-            if (typeof _launchShareLink === 'function') _launchShareLink('https://wa.me/?text=' + text);
-            else window.open('https://wa.me/?text=' + text, '_blank');
+        window.shareFlipbookWhatsApp = async function () {
+            const prop = _shareName();
+            const textMsg = '🏡 ' + prop + ' — ' + L().dl + '\n\n(Please see the attached PDF)';
+
+            // On mobile with Web Share API — try to share PDF file directly
+            if (navigator.canShare) {
+                try {
+                    const flipWin = document.getElementById('flipbookFrame') || document;
+                    const blob = await html2pdf().set({
+                        margin: 0, filename: 'flipbook.pdf',
+                        image: { type: 'jpeg', quality: 0.85 },
+                        html2canvas: { scale: 1.5, useCORS: true },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    }).from(document.getElementById('magazineContainer')).outputPdf('blob');
+                    const file = new File([blob], 'flipbook.pdf', { type: 'application/pdf' });
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({ files: [file], title: prop, text: textMsg });
+                        return;
+                    }
+                } catch(e) { if (e && e.name === 'AbortError') return; }
+            }
+
+            // Fallback — show toast, download PDF, then open WhatsApp with text
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1C1C1A;color:#fff;padding:14px 22px;font-size:13px;letter-spacing:.5px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.3);text-align:center;max-width:340px;line-height:1.5;border-radius:4px;';
+            toast.innerHTML = '📥 Downloading PDF…<br><span style="font-size:11px;color:#C5A880;">Then attach it in WhatsApp manually</span>';
+            document.body.appendChild(toast);
+            try {
+                const element = document.getElementById('magazineContainer');
+                const viewport = document.getElementById('magazineViewport');
+                element.classList.add('pdf-exporting');
+                const _pz = viewport ? viewport.style.zoom : '';
+                if (viewport) viewport.style.zoom = '1';
+                await html2pdf().set({
+                    margin: 0, filename: `lookbook_${prop}.pdf`,
+                    image: { type: 'jpeg', quality: 0.88 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                }).from(element).save();
+                element.classList.remove('pdf-exporting');
+                if (viewport) viewport.style.zoom = _pz;
+            } catch(e) {}
+            toast.innerHTML = '✓ PDF downloaded!<br><span style="font-size:11px;color:#C5A880;">Now open WhatsApp and attach the file ↓</span>';
+            const encoded = encodeURIComponent(textMsg);
+            setTimeout(() => {
+                if (typeof _launchShareLink === 'function') _launchShareLink('https://wa.me/?text=' + encoded);
+                else window.open('https://wa.me/?text=' + encoded, '_blank');
+            }, 800);
+            setTimeout(() => toast.remove(), 6000);
         };
 
         window.shareFlipbookEmail = async function () {
