@@ -1409,7 +1409,8 @@
                     <button class="btn-secondary uniform-action-btn" id="btnShareToggle" onclick="toggleShareMenu(event)" style="width:100%;">📤 <span id="lblBtnShare">Share</span></button>
                     <div id="shareMenu" style="display:none;">
                         <button onclick="shareViaEmail()">📧 <span id="lblShareEmail">Email</span></button>
-                        <button onclick="shareViaWhatsApp()">💬 <span id="lblShareWhatsApp">WhatsApp</span></button>
+                        <button onclick="shareViaWhatsApp()">📖 <span id="lblShareWhatsApp">WhatsApp — Flipbook</span></button>
+                        <button onclick="shareViaWhatsAppPDF()">💬 <span id="lblShareWhatsAppPDF">WhatsApp — PDF</span></button>
                     </div>
                 </div>
                 <button class="btn-action uniform-action-btn" id="btnDownload" onclick="openPreviewModal()">👁 <span id="lblBtnPreview">Preview &amp; Download</span></button>
@@ -1916,7 +1917,7 @@
                     btnUploadA: "Upload A", btnUploadB: "Upload B", addImage: "(add image)",
                     placeholderTitle: "Enter custom title", placeholderSubtitle: "Enter custom subtitle", placeholderHeading: "Enter custom heading",
                     placeholderNarrativeA: "Enter custom narrative A", placeholderNarrativeB: "Enter custom narrative B", placeholderClosing: "Enter custom closing title",
-                    btnShare: "Share", shareEmail: "Email", shareWhatsApp: "WhatsApp",
+                    btnShare: "Share", shareEmail: "Email", shareWhatsApp: "WhatsApp — Flipbook", shareWhatsAppPDF: "WhatsApp — PDF",
                     btnPreview: "Preview & Download", modalTitle: "Magazine Preview", modalBack: "Back to Edit", modalDownload: "Download PDF",
                     divViewMode: "View Mode", lblViewDesktop: "Desktop", lblViewMobile: "Mobile",
                     lblBtnPresentation: "Presentation Mode", lblBtnExit: "Exit Presentation",
@@ -1958,7 +1959,7 @@
                     btnUploadA: "Télécharger A", btnUploadB: "Télécharger B", addImage: "(ajouter image)",
                     placeholderTitle: "Entrez un titre personnalisé", placeholderSubtitle: "Entrez un sous-titre personnalisé", placeholderHeading: "Entrez un titre personnalisé",
                     placeholderNarrativeA: "Entrez un récit A personnalisé", placeholderNarrativeB: "Entrez un récit B personnalisé", placeholderClosing: "Entrez un titre de fermeture personnalisé",
-                    btnShare: "Partager", shareEmail: "E-mail", shareWhatsApp: "WhatsApp",
+                    btnShare: "Partager", shareEmail: "E-mail", shareWhatsApp: "WhatsApp — Flipbook", shareWhatsAppPDF: "WhatsApp — PDF",
                     btnPreview: "Aperçu & Télécharger", modalTitle: "Aperçu du Magazine", modalBack: "← Retour", modalDownload: "Télécharger PDF",
                     divViewMode: "Mode d'Affichage", lblViewDesktop: "Bureau", lblViewMobile: "Mobile",
                     lblBtnPresentation: "Mode Présentation", lblBtnExit: "Quitter la Présentation",
@@ -2000,7 +2001,7 @@
                     btnUploadA: "تحميل أ", btnUploadB: "تحميل ب", addImage: "(إضافة صورة)",
                     placeholderTitle: "أدخل عنوانًا مخصصًا", placeholderSubtitle: "أدخل عنوانًا فرعيًا مخصصًا", placeholderHeading: "أدخل عنوانًا مخصصًا",
                     placeholderNarrativeA: "أدخل سردًا A مخصصًا", placeholderNarrativeB: "أدخل سردًا B مخصصًا", placeholderClosing: "أدخل عنوان إغلاق مخصص",
-                    btnShare: "مشاركة", shareEmail: "بريد إلكتروني", shareWhatsApp: "واتساب",
+                    btnShare: "مشاركة", shareEmail: "بريد إلكتروني", shareWhatsApp: "واتساب — Flipbook", shareWhatsAppPDF: "واتساب — PDF",
                     btnPreview: "معاينة وتحميل", modalTitle: "معاينة المجلة", modalBack: "→ رجوع", modalDownload: "تحميل PDF",
                     divViewMode: "وضع العرض", lblViewDesktop: "سطح المكتب", lblViewMobile: "جوال",
                     lblBtnPresentation: "وضع العرض التقديمي", lblBtnExit: "خروج من العرض",
@@ -2179,8 +2180,9 @@
             const setLbl = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
             setLbl('lblBtnPreview',      data.labels.btnPreview);
             setLbl('lblBtnShare',        data.labels.btnShare);
-            setLbl('lblShareEmail',      data.labels.shareEmail);
-            setLbl('lblShareWhatsApp',   data.labels.shareWhatsApp);
+            setLbl('lblShareEmail',         data.labels.shareEmail);
+            setLbl('lblShareWhatsApp',      data.labels.shareWhatsApp);
+            setLbl('lblShareWhatsAppPDF',   data.labels.shareWhatsAppPDF);
             setLbl('lblModalTitle',      data.labels.modalTitle);
             setLbl('lblModalBack',       data.labels.modalBack);
             setLbl('lblModalDownload',   data.labels.modalDownload);
@@ -3554,53 +3556,103 @@
         async function shareViaWhatsApp() {
             document.getElementById('shareMenu').style.display = 'none';
             const { client, agent, prop } = _shareInfo();
+            const textMsg = `Dear ${client}, your exclusive luxury real estate interactive flipbook for "${prop}" is ready.\n\nOpen the attached HTML file on any device to experience the page-turning presentation.\n\nBest regards, ${agent} 🏡`;
 
-            // Step 1 — try native Web Share API with a generated PDF file (works on mobile)
-            if (navigator.canShare) {
-                try {
-                    const element = document.getElementById('magazineContainer');
-                    const blob = await html2pdf().set({
-                        margin: 0, filename: 'lookbook.pdf',
-                        image: { type: 'jpeg', quality: 0.85 },
-                        html2canvas: { scale: 1.5, useCORS: true },
-                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                    }).from(element).outputPdf('blob');
-                    const file = new File([blob], 'lookbook.pdf', { type: 'application/pdf' });
-                    if (navigator.canShare({ files: [file] })) {
-                        await navigator.share({ files: [file], title: `Lookbook — ${prop}`, text: `Dear ${client}, your exclusive luxury real estate lookbook for "${prop}" is ready.\n\nBest regards, ${agent}` });
-                        return;
-                    }
-                } catch(e) { if (e && e.name === 'AbortError') return; }
+            // Build flipbook HTML if needed
+            if (typeof window.openFlipbook === 'function' && !lastFlipbookHTML) {
+                await window.openFlipbook();
             }
 
-            // Step 2 — fallback: download PDF then open WhatsApp with instruction text
-            const text = encodeURIComponent(`Dear ${client}, your exclusive luxury real estate lookbook for "${prop}" is ready.\n\nBest regards, ${agent} 🏡\n\n(Please see the attached PDF)`);
-            // Show a helper toast
+            if (lastFlipbookHTML) {
+                const htmlBlob = new Blob([lastFlipbookHTML], { type: 'text/html' });
+                const fname = (prop || 'lookbook').replace(/[^a-z0-9]/gi, '_') + '_flipbook.html';
+                const htmlFile = new File([htmlBlob], fname, { type: 'text/html' });
+
+                // Mobile — try Web Share API with HTML file
+                if (navigator.canShare && navigator.canShare({ files: [htmlFile] })) {
+                    try {
+                        await navigator.share({ files: [htmlFile], title: `Flipbook — ${prop}`, text: textMsg });
+                        return;
+                    } catch(e) { if (e && e.name === 'AbortError') return; }
+                }
+
+                // Fallback: download HTML + open WhatsApp
+                const toast = document.createElement('div');
+                toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1C1C1A;color:#fff;padding:16px 24px;font-size:13px;letter-spacing:.4px;z-index:99999;box-shadow:0 6px 28px rgba(0,0,0,.32);text-align:center;max-width:360px;line-height:1.6;border-radius:4px;';
+                toast.innerHTML = '📥 Downloading Flipbook HTML…<br><span style="font-size:11px;color:#C5A880;">Step 2: attach the file in WhatsApp</span>';
+                document.body.appendChild(toast);
+                const dlUrl = URL.createObjectURL(htmlBlob);
+                const a = document.createElement('a');
+                a.href = dlUrl; a.download = fname;
+                document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(dlUrl), 8000);
+                setTimeout(() => {
+                    toast.innerHTML = '✓ Flipbook downloaded!<br><span style="font-size:11px;color:#C5A880;">Now open WhatsApp → attach the .html file ↓</span>';
+                    setTimeout(() => _launchShareLink(`https://wa.me/?text=${encodeURIComponent(textMsg)}`), 600);
+                }, 800);
+                setTimeout(() => toast.remove(), 7000);
+            } else {
+                // No flipbook built yet — just send WhatsApp text
+                _launchShareLink(`https://wa.me/?text=${encodeURIComponent(textMsg)}`);
+            }
+        }
+
+        async function shareViaWhatsAppPDF() {
+            document.getElementById('shareMenu').style.display = 'none';
+            const { client, agent, prop } = _shareInfo();
+            const textMsg = `Dear ${client}, your exclusive luxury real estate lookbook for "${prop}" is ready.\n\nPlease see the attached PDF.\n\nBest regards, ${agent} 🏡`;
+
             const toast = document.createElement('div');
-            toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1C1C1A;color:#fff;padding:14px 22px;font-size:13px;letter-spacing:.5px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.3);text-align:center;max-width:340px;line-height:1.5;';
-            toast.innerHTML = '📥 Downloading PDF…<br><span style="font-size:11px;color:#C5A880;">Then attach it in WhatsApp manually</span>';
+            toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1C1C1A;color:#fff;padding:16px 24px;font-size:13px;letter-spacing:.4px;z-index:99999;box-shadow:0 6px 28px rgba(0,0,0,.32);text-align:center;max-width:360px;line-height:1.6;border-radius:4px;';
+            toast.innerHTML = '📥 Generating PDF…<br><span style="font-size:11px;color:#C5A880;">This may take a few seconds</span>';
             document.body.appendChild(toast);
 
-            // Trigger PDF download
-            const element = document.getElementById('magazineContainer');
-            const viewport = document.getElementById('magazineViewport');
-            element.classList.add('pdf-exporting');
-            const _prevZoom = viewport ? viewport.style.zoom : '';
-            if (viewport) viewport.style.zoom = '1';
-            await html2pdf().set({
-                margin: 0, filename: `lookbook_${prop || 'presentation'}.pdf`,
-                image: { type: 'jpeg', quality: 0.88 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-            }).from(element).save();
-            element.classList.remove('pdf-exporting');
-            if (viewport) viewport.style.zoom = _prevZoom;
+            try {
+                const element = document.getElementById('magazineContainer');
+                const viewport = document.getElementById('magazineViewport');
+                element.classList.add('pdf-exporting');
+                const _prevZoom = viewport ? viewport.style.zoom : '';
+                if (viewport) viewport.style.zoom = '1';
 
-            // Update toast and open WhatsApp
-            toast.innerHTML = '✓ PDF downloaded!<br><span style="font-size:11px;color:#C5A880;">Now attach it in WhatsApp ↓</span>';
-            setTimeout(() => { _launchShareLink(`https://wa.me/?text=${text}`); }, 800);
-            setTimeout(() => toast.remove(), 5000);
+                const pdfBlob = await html2pdf().set({
+                    margin: 0,
+                    filename: `lookbook_${(prop || 'presentation').replace(/[^a-z0-9]/gi,'_')}.pdf`,
+                    image: { type: 'jpeg', quality: 0.88 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                }).from(element).outputPdf('blob');
+
+                element.classList.remove('pdf-exporting');
+                if (viewport) viewport.style.zoom = _prevZoom;
+
+                const fname = `lookbook_${(prop || 'presentation').replace(/[^a-z0-9]/gi,'_')}.pdf`;
+                const pdfFile = new File([pdfBlob], fname, { type: 'application/pdf' });
+
+                // Mobile — try Web Share API with PDF file directly
+                if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+                    toast.remove();
+                    try {
+                        await navigator.share({ files: [pdfFile], title: `Lookbook — ${prop}`, text: textMsg });
+                        return;
+                    } catch(e) { if (e && e.name === 'AbortError') return; }
+                }
+
+                // Fallback: download PDF + open WhatsApp with text
+                const dlUrl = URL.createObjectURL(pdfBlob);
+                const a = document.createElement('a');
+                a.href = dlUrl; a.download = fname;
+                document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(dlUrl), 8000);
+
+                toast.innerHTML = '✓ PDF downloaded!<br><span style="font-size:11px;color:#C5A880;">Now open WhatsApp → attach the PDF file ↓</span>';
+                setTimeout(() => _launchShareLink(`https://wa.me/?text=${encodeURIComponent(textMsg)}`), 800);
+                setTimeout(() => toast.remove(), 7000);
+
+            } catch(e) {
+                toast.remove();
+                alert('Could not generate PDF. Please try the Download PDF button first.');
+            }
         }
 
         // ---- Save / Delete page management ----
@@ -4266,53 +4318,48 @@ baseStyles,
 
         window.shareFlipbookWhatsApp = async function () {
             const prop = _shareName();
-            const textMsg = '🏡 ' + prop + ' — ' + L().dl + '\n\n(Please see the attached PDF)';
+            const textMsg = '🏡 ' + prop + '\n\nOpen the attached HTML file on any device to experience the interactive flipbook with page-turning effect.';
 
-            // On mobile with Web Share API — try to share PDF file directly
-            if (navigator.canShare) {
+            // Ensure flipbook HTML is built
+            if (!lastFlipbookHTML) { await window.openFlipbook(); }
+            if (!lastFlipbookHTML) return;
+
+            const htmlBlob = new Blob([lastFlipbookHTML], { type: 'text/html' });
+            const htmlFile = new File([htmlBlob], (prop || 'lookbook').replace(/[^a-z0-9]/gi,'_') + '_flipbook.html', { type: 'text/html' });
+
+            // On mobile — try Web Share API with the HTML file directly
+            if (navigator.canShare && navigator.canShare({ files: [htmlFile] })) {
                 try {
-                    const flipWin = document.getElementById('flipbookFrame') || document;
-                    const blob = await html2pdf().set({
-                        margin: 0, filename: 'flipbook.pdf',
-                        image: { type: 'jpeg', quality: 0.85 },
-                        html2canvas: { scale: 1.5, useCORS: true },
-                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                    }).from(document.getElementById('magazineContainer')).outputPdf('blob');
-                    const file = new File([blob], 'flipbook.pdf', { type: 'application/pdf' });
-                    if (navigator.canShare({ files: [file] })) {
-                        await navigator.share({ files: [file], title: prop, text: textMsg });
-                        return;
-                    }
+                    await navigator.share({ files: [htmlFile], title: prop, text: textMsg });
+                    return;
                 } catch(e) { if (e && e.name === 'AbortError') return; }
             }
 
-            // Fallback — show toast, download PDF, then open WhatsApp with text
+            // Fallback (desktop / unsupported browser):
+            // 1. Download the HTML flipbook file
+            // 2. Open WhatsApp with pre-written text + instruction to attach the file
             const toast = document.createElement('div');
-            toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1C1C1A;color:#fff;padding:14px 22px;font-size:13px;letter-spacing:.5px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.3);text-align:center;max-width:340px;line-height:1.5;border-radius:4px;';
-            toast.innerHTML = '📥 Downloading PDF…<br><span style="font-size:11px;color:#C5A880;">Then attach it in WhatsApp manually</span>';
+            toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1C1C1A;color:#fff;padding:16px 24px;font-size:13px;letter-spacing:.4px;z-index:99999;box-shadow:0 6px 28px rgba(0,0,0,.32);text-align:center;max-width:360px;line-height:1.6;border-radius:4px;';
+            toast.innerHTML = '📥 Downloading Flipbook HTML…<br><span style="font-size:11px;color:#C5A880;">Step 2: attach the file in WhatsApp</span>';
             document.body.appendChild(toast);
-            try {
-                const element = document.getElementById('magazineContainer');
-                const viewport = document.getElementById('magazineViewport');
-                element.classList.add('pdf-exporting');
-                const _pz = viewport ? viewport.style.zoom : '';
-                if (viewport) viewport.style.zoom = '1';
-                await html2pdf().set({
-                    margin: 0, filename: `lookbook_${prop}.pdf`,
-                    image: { type: 'jpeg', quality: 0.88 },
-                    html2canvas: { scale: 2, useCORS: true },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                }).from(element).save();
-                element.classList.remove('pdf-exporting');
-                if (viewport) viewport.style.zoom = _pz;
-            } catch(e) {}
-            toast.innerHTML = '✓ PDF downloaded!<br><span style="font-size:11px;color:#C5A880;">Now open WhatsApp and attach the file ↓</span>';
-            const encoded = encodeURIComponent(textMsg);
+
+            // Download the HTML file
+            const dlUrl = URL.createObjectURL(htmlBlob);
+            const a = document.createElement('a');
+            a.href = dlUrl; a.download = htmlFile.name;
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(() => URL.revokeObjectURL(dlUrl), 8000);
+
+            // Update toast, then open WhatsApp
             setTimeout(() => {
-                if (typeof _launchShareLink === 'function') _launchShareLink('https://wa.me/?text=' + encoded);
-                else window.open('https://wa.me/?text=' + encoded, '_blank');
+                toast.innerHTML = '✓ Flipbook downloaded!<br><span style="font-size:11px;color:#C5A880;">Now open WhatsApp → attach the .html file ↓</span>';
+                const encoded = encodeURIComponent(textMsg);
+                setTimeout(() => {
+                    if (typeof _launchShareLink === 'function') _launchShareLink('https://wa.me/?text=' + encoded);
+                    else window.open('https://wa.me/?text=' + encoded, '_blank');
+                }, 600);
             }, 800);
-            setTimeout(() => toast.remove(), 6000);
+            setTimeout(() => toast.remove(), 7000);
         };
 
         window.shareFlipbookEmail = async function () {
