@@ -3963,6 +3963,22 @@
                 clone.style.minHeight = '842px';
                 clone.style.transform = 'none';
 
+                // ── Strip edit-only UI so the flipbook shows clean pages ──
+                clone.querySelectorAll('.img-placeholder-content').forEach(el => el.remove());
+                clone.querySelectorAll('.add-second-image-btn').forEach(el => el.remove());
+                clone.querySelectorAll('.media-link-overlay').forEach(el => el.remove());
+                clone.querySelectorAll('img').forEach(img => {
+                    const s = img.getAttribute('src') || '';
+                    if (!s || s === '' || s === 'about:blank') {
+                        img.style.display = 'none';
+                        img.removeAttribute('src');
+                    }
+                });
+                clone.querySelectorAll('.img-container.empty').forEach(el => {
+                    el.style.background = '#f4f0eb';
+                    el.classList.remove('empty');
+                });
+
                 // ── Resolve all blob URLs to self-contained data URIs ──
                 // img[src]
                 await Promise.all(Array.from(clone.querySelectorAll('img[src]')).map(async img => {
@@ -4013,6 +4029,7 @@ baseStyles,
 '.fb-tool-btn,.fb-menu-toggle{cursor:pointer;transition:.2s;min-width:0;}',
 '.fb-tool-btn:hover,.fb-menu-toggle:hover{background:#C5A880;}',
 '.fb-tool-btn:disabled{opacity:.35;cursor:default;background:#FFFFFF;}',
+'#zoomIn,#zoomOut{font-family:Arial,sans-serif;font-size:17px;font-weight:700;color:#111110;letter-spacing:0;text-transform:none;line-height:1;}',
 '.fb-counter{min-width:0;text-align:center;direction:ltr;}',
 'body.fb-ui-hidden .fb-toolbar,.fb-toolbar.mobile-collapsed{opacity:0;pointer-events:none;transform:translateY(-8px);}',
 'body.fb-ui-hidden .fb-menu-toggle{opacity:.65;}',
@@ -4037,7 +4054,11 @@ baseStyles,
 '.book.single-l .spage.sl{width:100%;box-shadow:none;}',
 '.book.single-l .spine{display:none;}',
 '.page-shell{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fff;overflow:hidden;}',
-'.page-fit{width:595px;height:842px;transform-origin:center center;visibility:hidden;}',
+'.page-fit{width:595px;height:842px;transform-origin:center center;visibility:hidden;will-change:transform;}',
+/* Pages that have been scaled are made visible by fitShell. As a failsafe,
+   force visibility after 3 s so nothing stays hidden if JS timing is off. */
+'@keyframes fb-reveal{to{visibility:visible}}',
+'.page-fit{animation:fb-reveal 0s 3s forwards;}',
 '.page-fit .magazine-page{width:595px !important;height:842px !important;min-width:595px !important;min-height:842px !important;box-shadow:none !important;margin:0 !important;transform:none !important;}',
 '.page-fit .magazine-page *{pointer-events:none !important;}',
 /* Spine shadow in the centre */
@@ -4141,13 +4162,20 @@ baseStyles,
 '  try{var fit=sh&&sh.querySelector(".page-fit");if(!fit)return;',
 '  var W=sh.offsetWidth||0,H=sh.offsetHeight||0;',
 '  if(!W||!H){var bH=book.offsetHeight||0;W=bH*0.707;H=bH;}',
+'  if(!W||!H){',
+'    var vh=window.innerHeight||screen.height||640;',
+'    var isSingle=book.classList.contains("single-r")||book.classList.contains("single-l");',
+'    H=Math.min(vh*0.82,vh-80);',
+'    W=isSingle?H*0.707:H*1.414;',
+'  }',
 '  var s=(W>0&&H>0)?Math.min(W/PW,H/PH):1;',
 '  if(!isFinite(s)||s<=0)s=1;',
 '  fit.style.transform="scale("+s+")";fit.style.visibility="visible";}catch(e){}',
 '}',
 'function fitAll(){fitShell(slShell);fitShell(srShell);fitShell(ffShell);fitShell(fbShell);}',
-'window.addEventListener("resize",function(){setTimeout(fitAll,0);});',
-'window.addEventListener("load",function(){setTimeout(fitAll,80);setTimeout(fitAll,400);});',
+'window.addEventListener("resize",function(){setTimeout(fitAll,0);setTimeout(fitAll,200);});',
+'window.addEventListener("load",function(){fitAll();[80,300,600,1200,2500].forEach(function(t){setTimeout(fitAll,t);});});',
+'document.addEventListener("DOMContentLoaded",function(){fitAll();setTimeout(fitAll,100);});',
 'try{var _ro=new ResizeObserver(function(){setTimeout(fitAll,0);});_ro.observe(book);}catch(e){}',
 'function renderView(v){',
 '  if(v.single==="r"){',
